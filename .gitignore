@@ -1,0 +1,8 @@
+target/
+build-check/
+.tools/
+data/
+.vercel/
+*.log
+javafx-run.out
+javafx-run.err

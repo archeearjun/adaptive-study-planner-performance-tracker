@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive Study Planner & Performance Tracker</title>
+    <meta name="description" content="Portfolio project: a Java 17, JavaFX, and SQLite study planning engine that combines SM-2 spaced repetition, priority scheduling, Pomodoro planning, and logistic-regression-based retention prediction.">
+    <link rel="stylesheet" href="site.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero" id="top">
+            <nav class="topbar">
+                <div class="brand">
+                    <span class="brand-mark">A</span>
+                    <span>Adaptive Study Planner</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#product">Product</a>
+                    <a href="#architecture">Architecture</a>
+                    <a href="#showcase">Showcase</a>
+                    <a href="#run">Run It</a>
+                </div>
+            </nav>
+
+            <div class="hero-grid">
+                <div class="hero-copy">
+                    <p class="eyebrow">Portfolio-grade Java desktop project</p>
+                    <h1>Adaptive Study Planner & Performance Tracker</h1>
+                    <p class="hero-text">
+                        A Java 17 desktop application that generates adaptive daily study plans by combining
+                        SM-2 spaced repetition, weighted task scheduling, Pomodoro execution, performance
+                        analytics, and a custom logistic regression retention predictor.
+                    </p>
+                    <div class="cta-row">
+                        <a class="button primary" href="#run">Run Locally</a>
+                        <a class="button secondary" href="README.md">Read The README</a>
+                    </div>
+                    <div class="resume-panel">
+                        <p>Resume-ready outcome</p>
+                        <ul>
+                            <li>Built a Java-based planning engine that adapts to deadlines, forgetting risk, and available time.</li>
+                            <li>Integrated logistic regression recall prediction directly into scheduling decisions.</li>
+                            <li>Tracked study consistency, revision quality, Pomodoros, and topic-level retention trends.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <aside class="hero-stack">
+                    <section class="signal-card">
+                        <p class="signal-label">Core stack</p>
+                        <div class="signal-grid">
+                            <span>Java 17</span>
+                            <span>JavaFX</span>
+                            <span>SQLite</span>
+                            <span>Maven</span>
+                            <span>SM-2</span>
+                            <span>Logistic Regression</span>
+                        </div>
+                    </section>
+                    <section class="signal-card spotlight">
+                        <p class="signal-label">Why this is credible</p>
+                        <ul>
+                            <li>The planner explains why each topic was scheduled.</li>
+                            <li>Session logs change future plans instead of just storing history.</li>
+                            <li>The project includes persistence, seeded data, tests, and a deployable showcase.</li>
+                        </ul>
+                    </section>
+                </aside>
+            </div>
+        </header>
+
+        <main>
+            <section class="metrics-strip" id="product">
+                <article>
+                    <span class="metric">6</span>
+                    <p>desktop screens covering dashboard, planning, logging, analytics, and topic drill-downs</p>
+                </article>
+                <article>
+                    <span class="metric">12</span>
+                    <p>seeded topics with historical sessions and review records for a demo-ready first launch</p>
+                </article>
+                <article>
+                    <span class="metric">5</span>
+                    <p>decision layers: urgency, priority, difficulty, backlog, and retention risk</p>
+                </article>
+                <article>
+                    <span class="metric">1</span>
+                    <p>desktop product plus a Vercel-hostable project showcase for LinkedIn and portfolio sharing</p>
+                </article>
+            </section>
+
+            <section class="section-block">
+                <div class="section-heading">
+                    <p class="eyebrow">What the product does</p>
+                    <h2>Turns study planning into a feedback loop</h2>
+                </div>
+                <div class="feature-grid">
+                    <article class="feature-card">
+                        <h3>Adaptive Daily Planning</h3>
+                        <p>Builds an ordered day plan from available time, deadlines, priority, backlog, and predicted recall probability.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>SM-2 Reviews</h3>
+                        <p>Applies spaced repetition updates to easiness factor, repetition count, interval, and next review date.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>Pomodoro Breakdown</h3>
+                        <p>Converts each planned study item into focused work blocks with configurable focus and break lengths.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>Retention Prediction</h3>
+                        <p>Uses a custom logistic regression implementation to estimate whether a learner is likely to remember a topic.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>Performance Analytics</h3>
+                        <p>Surfaces study streaks, completion rate, overdue reviews, neglected topics, and subject-level breakdowns.</p>
+                    </article>
+                    <article class="feature-card">
+                        <h3>Replanning After Progress</h3>
+                        <p>Logged work now affects same-day regeneration, so completed topics are removed or shortened instead of being blindly repeated.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block architecture-block" id="architecture">
+                <div class="section-heading">
+                    <p class="eyebrow">System design</p>
+                    <h2>Clean architecture with an explainable planning pipeline</h2>
+                </div>
+                <div class="architecture-rail">
+                    <article>
+                        <span>01</span>
+                        <h3>Input Layer</h3>
+                        <p>Subjects, topics, deadlines, confidence, difficulty, estimated time, and review metadata enter through the JavaFX UI.</p>
+                    </article>
+                    <article>
+                        <span>02</span>
+                        <h3>Persistence Layer</h3>
+                        <p>SQLite stores subjects, topics, sessions, review events, generated plans, Pomodoro blocks, and model training data.</p>
+                    </article>
+                    <article>
+                        <span>03</span>
+                        <h3>Decision Layer</h3>
+                        <p>The scheduler computes a weighted score from urgency, importance, recall risk, difficulty, and backlog pressure.</p>
+                    </article>
+                    <article>
+                        <span>04</span>
+                        <h3>Retention Layer</h3>
+                        <p>A custom logistic regression model predicts recall likelihood from behavior and review history, then feeds the scheduler.</p>
+                    </article>
+                    <article>
+                        <span>05</span>
+                        <h3>Feedback Layer</h3>
+                        <p>Session logs update SM-2 state, add training examples, and improve future plans and analytics.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block showcase-block" id="showcase">
+                <div class="section-heading">
+                    <p class="eyebrow">Showcase</p>
+                    <h2>Use this section for screenshots before posting on LinkedIn</h2>
+                </div>
+                <div class="showcase-grid">
+                    <article class="shot-card">
+                        <div class="shot-surface">
+                            <span>Dashboard screenshot</span>
+                        </div>
+                        <h3>Dashboard</h3>
+                        <p>Highlight overdue reviews, today’s planned vs logged time, streaks, and risk tables.</p>
+                    </article>
+                    <article class="shot-card">
+                        <div class="shot-surface">
+                            <span>Planner screenshot</span>
+                        </div>
+                        <h3>Daily Planner</h3>
+                        <p>Show recommendation reasons, recall percentages, and the ordered Pomodoro queue.</p>
+                    </article>
+                    <article class="shot-card">
+                        <div class="shot-surface">
+                            <span>Analytics screenshot</span>
+                        </div>
+                        <h3>Analytics</h3>
+                        <p>Show weekly consistency, subject breakdown, and topic-level retention metrics.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block">
+                <div class="section-heading">
+                    <p class="eyebrow">Deployment reality</p>
+                    <h2>How Vercel fits this project</h2>
+                </div>
+                <div class="deployment-grid">
+                    <article class="note-card">
+                        <h3>What Vercel hosts well</h3>
+                        <p>This repository now includes a static project site you can deploy directly on Vercel for LinkedIn, portfolio traffic, and recruiter sharing.</p>
+                    </article>
+                    <article class="note-card caution">
+                        <h3>What Vercel does not host here</h3>
+                        <p>The JavaFX desktop application itself is not a native Vercel runtime target, so the recommended setup is: host the showcase on Vercel and run or distribute the desktop app separately.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block run-block" id="run">
+                <div class="section-heading">
+                    <p class="eyebrow">Run locally</p>
+                    <h2>Desktop app commands</h2>
+                </div>
+                <div class="command-grid">
+                    <article class="command-card">
+                        <p class="command-label">Launch the JavaFX app</p>
+                        <code>mvnw.cmd javafx:run</code>
+                    </article>
+                    <article class="command-card">
+                        <p class="command-label">Run the automated tests</p>
+                        <code>mvnw.cmd test</code>
+                    </article>
+                    <article class="command-card">
+                        <p class="command-label">Build the project</p>
+                        <code>mvnw.cmd -DskipTests package</code>
+                    </article>
+                </div>
+                <p class="run-note">
+                    On macOS or Linux, replace <code>mvnw.cmd</code> with <code>./mvnw</code>.
+                    The desktop database is stored in the user profile by default and can be overridden with
+                    <code>STUDYPLANNER_DB_PATH</code> or <code>-Dstudyplanner.db.path=...</code>.
+                </p>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>Adaptive Study Planner & Performance Tracker</p>
+            <p>A solo-developer desktop systems project with a Vercel-ready public showcase.</p>
+        </footer>
+    </div>
+</body>
+</html>

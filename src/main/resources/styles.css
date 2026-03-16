@@ -1,0 +1,208 @@
+.root {
+    -fx-font-family: "Aptos", "Segoe UI", sans-serif;
+    -fx-background-color: linear-gradient(to bottom, #eef4ff 0%, #f7f9fc 35%, #fff8ef 100%);
+    -fx-text-fill: #162033;
+}
+
+.app-shell {
+    -fx-background-color: transparent;
+}
+
+.hero-panel {
+    -fx-background-color: linear-gradient(to right, rgba(12, 28, 55, 0.96), rgba(26, 72, 130, 0.88), rgba(205, 115, 23, 0.78));
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(gaussian, rgba(12, 28, 55, 0.20), 18, 0.25, 0, 10);
+}
+
+.hero-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #ffffff;
+}
+
+.hero-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+}
+
+.hero-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: rgba(255, 255, 255, 0.78);
+}
+
+.hero-badge {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(255, 255, 255, 0.18);
+    -fx-border-radius: 999;
+    -fx-padding: 10 16;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.tab-pane.main-tabs {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab {
+    -fx-background-color: rgba(255, 255, 255, 0.68);
+    -fx-background-radius: 14 14 0 0;
+    -fx-padding: 10 18;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: rgba(15, 35, 66, 0.96);
+}
+
+.tab-pane .tab-label {
+    -fx-text-fill: #344055;
+    -fx-font-weight: 600;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #ffffff;
+}
+
+.card,
+.summary-card {
+    -fx-background-color: rgba(255, 255, 255, 0.88);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(130, 149, 181, 0.24);
+    -fx-border-radius: 22;
+    -fx-effect: dropshadow(gaussian, rgba(18, 34, 66, 0.08), 12, 0.18, 0, 6);
+}
+
+.summary-card {
+    -fx-pref-width: 240;
+}
+
+.summary-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #60708a;
+}
+
+.summary-value {
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #10213d;
+}
+
+.summary-support {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6f7b91;
+}
+
+.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #142542;
+}
+
+.support-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #5f6d85;
+}
+
+.button {
+    -fx-background-color: rgba(15, 35, 66, 0.08);
+    -fx-background-radius: 12;
+    -fx-text-fill: #162033;
+    -fx-font-weight: 600;
+    -fx-padding: 10 16;
+}
+
+.button:hover {
+    -fx-background-color: rgba(15, 35, 66, 0.14);
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(to right, #163c76, #d97706);
+    -fx-text-fill: #ffffff;
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(to right, #0f315f, #b95f00);
+}
+
+.danger-button {
+    -fx-background-color: linear-gradient(to right, #9f1239, #be123c);
+    -fx-text-fill: #ffffff;
+}
+
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: rgba(16, 33, 61, 0.08);
+    -fx-background-radius: 14 14 0 0;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: transparent;
+    -fx-size: 36px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #32405c;
+    -fx-font-weight: 700;
+}
+
+.table-row-cell {
+    -fx-background-color: rgba(255, 255, 255, 0.55);
+    -fx-border-color: transparent transparent rgba(130, 149, 181, 0.10) transparent;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: rgba(37, 99, 235, 0.16);
+}
+
+.text-field,
+.text-area,
+.combo-box,
+.date-picker,
+.spinner,
+.list-view {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(130, 149, 181, 0.24);
+}
+
+.chart {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+}
+
+.chart-plot-background {
+    -fx-background-color: rgba(16, 33, 61, 0.03);
+    -fx-background-radius: 18;
+}
+
+.default-color0.chart-series-line {
+    -fx-stroke: #d97706;
+    -fx-stroke-width: 2.4px;
+}
+
+.default-color0.chart-bar {
+    -fx-bar-fill: linear-gradient(to top, #163c76, #3b82f6);
+}
+
+.default-color0.chart-line-symbol {
+    -fx-background-color: #163c76, white;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
