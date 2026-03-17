@@ -2,7 +2,6 @@ target/
 build-check/
 .tools/
 data/
-.dist/
 dist/
 .vercel/
 *.log

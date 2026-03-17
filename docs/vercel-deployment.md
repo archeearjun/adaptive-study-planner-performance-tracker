@@ -27,6 +27,11 @@ Deploy the repository root as a static site. The relevant files are:
 4. When the preview looks correct, promote it:
    - `npx vercel@latest deploy --prod`
 
+The repository also includes:
+
+- `powershell -ExecutionPolicy Bypass -File scripts/deploy-vercel.ps1`
+- `powershell -ExecutionPolicy Bypass -File scripts/deploy-vercel.ps1 -Production`
+
 If you prefer the dashboard flow, import the GitHub repository into Vercel and keep the project at the repository root.
 
 ## Important Constraint

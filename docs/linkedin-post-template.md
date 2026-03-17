@@ -30,7 +30,7 @@ Public links:
 
 - Live showcase: add the Vercel production URL after deployment
 - GitHub: https://github.com/archeearjun/adaptive-study-planner-performance-tracker
-- Download: https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases
+- Download: https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/tag/v1.0.0
 
 Next improvements I want to make:
 

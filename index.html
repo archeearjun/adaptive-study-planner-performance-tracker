@@ -34,7 +34,7 @@
                     </p>
                     <div class="cta-row">
                         <a class="button primary" href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker" target="_blank" rel="noreferrer">View Source</a>
-                        <a class="button secondary" href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases" target="_blank" rel="noreferrer">Windows Release</a>
+                        <a class="button secondary" href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/download/v1.0.0/AdaptiveStudyPlanner-windows-x64.zip" target="_blank" rel="noreferrer">Download Windows Build</a>
                         <a class="button secondary" href="README.md">Read README</a>
                     </div>
                     <div class="resume-panel">
@@ -71,7 +71,7 @@
                         <p class="signal-label">Resume links</p>
                         <div class="link-stack">
                             <a href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker" target="_blank" rel="noreferrer">GitHub repository</a>
-                            <a href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases" target="_blank" rel="noreferrer">Releases / download</a>
+                            <a href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/tag/v1.0.0" target="_blank" rel="noreferrer">Release page</a>
                             <span>Live: use this site URL after deploying the root static site on Vercel.</span>
                         </div>
                     </section>
@@ -223,6 +223,10 @@
                         <h3>How to package it</h3>
                         <p>Run <code>scripts/package-windows.ps1</code> to build a Windows app image and zip archive using <code>jpackage</code>.</p>
                     </article>
+                    <article class="note-card">
+                        <h3>How to deploy the site</h3>
+                        <p>Run <code>scripts/deploy-vercel.ps1 -Production</code> after authenticating with Vercel to publish this static site.</p>
+                    </article>
                 </div>
             </section>
 
@@ -243,6 +247,10 @@
                     <article class="command-card">
                         <p class="command-label">Build the Windows package</p>
                         <code>powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1</code>
+                    </article>
+                    <article class="command-card">
+                        <p class="command-label">Deploy the static portfolio site</p>
+                        <code>powershell -ExecutionPolicy Bypass -File scripts/deploy-vercel.ps1 -Production</code>
                     </article>
                 </div>
                 <p class="run-note">
