@@ -7,6 +7,7 @@ import com.studyplanner.model.ReviewRecord;
 import com.studyplanner.model.StudySession;
 import com.studyplanner.model.Subject;
 import com.studyplanner.model.Topic;
+import com.studyplanner.persistence.DailyPlanRepository;
 import com.studyplanner.persistence.ReviewRecordRepository;
 import com.studyplanner.persistence.StudySessionRepository;
 import com.studyplanner.persistence.SubjectRepository;
@@ -24,15 +25,18 @@ public class TopicService {
     private final SubjectRepository subjectRepository;
     private final StudySessionRepository studySessionRepository;
     private final ReviewRecordRepository reviewRecordRepository;
+    private final DailyPlanRepository dailyPlanRepository;
     private final RetentionPredictionService retentionPredictionService;
 
     public TopicService(TopicRepository topicRepository, SubjectRepository subjectRepository,
                         StudySessionRepository studySessionRepository, ReviewRecordRepository reviewRecordRepository,
+                        DailyPlanRepository dailyPlanRepository,
                         RetentionPredictionService retentionPredictionService) {
         this.topicRepository = topicRepository;
         this.subjectRepository = subjectRepository;
         this.studySessionRepository = studySessionRepository;
         this.reviewRecordRepository = reviewRecordRepository;
+        this.dailyPlanRepository = dailyPlanRepository;
         this.retentionPredictionService = retentionPredictionService;
     }
 
@@ -61,15 +65,14 @@ public class TopicService {
         if (topic.getEasinessFactor() <= 0) {
             topic.setEasinessFactor(2.5);
         }
-        if (topic.getNextReviewDate() == null) {
-            LocalDate anchor = topic.getLastStudiedDate() != null ? topic.getLastStudiedDate() : LocalDate.now();
-            topic.setNextReviewDate(anchor.plusDays(Math.max(1, topic.getIntervalDays())));
-        }
-        return topicRepository.save(topic);
+        Topic savedTopic = topicRepository.save(topic);
+        dailyPlanRepository.markPlansFromDateStale(LocalDate.now());
+        return savedTopic;
     }
 
     public void deleteTopic(long topicId) {
         topicRepository.delete(topicId);
+        dailyPlanRepository.markPlansFromDateStale(LocalDate.now());
     }
 
     public TopicDetailSnapshot getTopicDetail(long topicId) {
@@ -84,11 +87,19 @@ public class TopicService {
             .sorted(Comparator.comparing(ReviewRecord::getReviewDate).reversed())
             .toList();
 
-        int totalSessions = sessions.size();
-        int totalTimeSpent = sessions.stream().mapToInt(StudySession::getActualMinutes).sum();
+        int totalSessions = (int) sessions.stream().filter(StudySession::isTerminal).count();
+        int totalTimeSpent = sessions.stream()
+            .filter(session -> session.getStatus().countsAsStudiedWork())
+            .mapToInt(StudySession::getActualMinutes)
+            .sum();
         double averageConfidence = sessions.isEmpty()
             ? topic.getConfidenceLevel()
-            : sessions.stream().mapToDouble(StudySession::getConfidenceAfter).average().orElse(topic.getConfidenceLevel());
+            : sessions.stream()
+                .map(StudySession::getConfidenceAfter)
+                .filter(confidence -> confidence != null)
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(topic.getConfidenceLevel());
 
         OptionalDouble revisionSuccess = reviews.stream()
             .mapToInt(review -> review.getQuality() >= 3 ? 1 : 0)
@@ -97,6 +108,7 @@ public class TopicService {
         List<TimeSeriesPoint> confidenceTrend = new ArrayList<>();
         sessions.stream()
             .sorted(Comparator.comparing(StudySession::getSessionDate))
+            .filter(session -> session.getConfidenceAfter() != null)
             .forEach(session -> confidenceTrend.add(new TimeSeriesPoint(session.getSessionDate(), session.getConfidenceAfter())));
         if (confidenceTrend.isEmpty()) {
             confidenceTrend.add(new TimeSeriesPoint(LocalDate.now(), topic.getConfidenceLevel()));

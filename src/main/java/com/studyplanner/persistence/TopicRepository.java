@@ -106,6 +106,17 @@ public class TopicRepository {
         return update(topic);
     }
 
+    public Topic save(Connection connection, Topic topic) {
+        try {
+            if (topic.getId() == 0) {
+                return insert(connection, topic);
+            }
+            return update(connection, topic);
+        } catch (SQLException exception) {
+            throw new PersistenceException("Failed to save topic " + topic.getName(), exception);
+        }
+    }
+
     public void delete(long id) {
         String sql = "DELETE FROM topics WHERE id = ?";
         try (Connection connection = databaseManager.getConnection();
@@ -140,6 +151,26 @@ public class TopicRepository {
         }
     }
 
+    private Topic insert(Connection connection, Topic topic) throws SQLException {
+        String sql = """
+            INSERT INTO topics(
+                subject_id, name, notes, priority, difficulty, estimated_study_minutes,
+                target_exam_date, confidence_level, last_studied_date, easiness_factor,
+                repetition_count, interval_days, next_review_date, archived
+            ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """;
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            bindTopic(statement, topic);
+            statement.executeUpdate();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (keys.next()) {
+                    topic.setId(keys.getLong(1));
+                }
+            }
+            return topic;
+        }
+    }
+
     private Topic update(Topic topic) {
         String sql = """
             UPDATE topics
@@ -156,6 +187,22 @@ public class TopicRepository {
             return topic;
         } catch (SQLException exception) {
             throw new PersistenceException("Failed to update topic " + topic.getId(), exception);
+        }
+    }
+
+    private Topic update(Connection connection, Topic topic) throws SQLException {
+        String sql = """
+            UPDATE topics
+            SET subject_id = ?, name = ?, notes = ?, priority = ?, difficulty = ?, estimated_study_minutes = ?,
+                target_exam_date = ?, confidence_level = ?, last_studied_date = ?, easiness_factor = ?,
+                repetition_count = ?, interval_days = ?, next_review_date = ?, archived = ?
+            WHERE id = ?
+            """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            bindTopic(statement, topic);
+            statement.setLong(15, topic.getId());
+            statement.executeUpdate();
+            return topic;
         }
     }
 

@@ -9,8 +9,11 @@ public class DailyPlan {
     private long id;
     private LocalDate planDate;
     private int availableMinutes;
+    private int focusMinutes = 25;
+    private int shortBreakMinutes = 5;
     private int totalPlannedMinutes;
     private LocalDateTime generatedAt;
+    private boolean stale;
     private String summary;
     private List<PlanItem> items = new ArrayList<>();
 
@@ -59,12 +62,36 @@ public class DailyPlan {
         this.totalPlannedMinutes = totalPlannedMinutes;
     }
 
+    public int getFocusMinutes() {
+        return focusMinutes;
+    }
+
+    public void setFocusMinutes(int focusMinutes) {
+        this.focusMinutes = focusMinutes;
+    }
+
+    public int getShortBreakMinutes() {
+        return shortBreakMinutes;
+    }
+
+    public void setShortBreakMinutes(int shortBreakMinutes) {
+        this.shortBreakMinutes = shortBreakMinutes;
+    }
+
     public LocalDateTime getGeneratedAt() {
         return generatedAt;
     }
 
     public void setGeneratedAt(LocalDateTime generatedAt) {
         this.generatedAt = generatedAt;
+    }
+
+    public boolean isStale() {
+        return stale;
+    }
+
+    public void setStale(boolean stale) {
+        this.stale = stale;
     }
 
     public String getSummary() {

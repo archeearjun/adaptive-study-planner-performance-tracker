@@ -3,6 +3,7 @@ package com.studyplanner.service.scheduler;
 import com.studyplanner.dto.PlanGenerationRequest;
 import com.studyplanner.dto.RetentionPrediction;
 import com.studyplanner.model.DailyPlan;
+import com.studyplanner.model.PlanHistoryEntry;
 import com.studyplanner.model.PlanItem;
 import com.studyplanner.model.PlanItemType;
 import com.studyplanner.model.SessionStatus;
@@ -15,7 +16,6 @@ import com.studyplanner.persistence.SubjectRepository;
 import com.studyplanner.persistence.TopicRepository;
 import com.studyplanner.service.RetentionPredictionService;
 import com.studyplanner.service.pomodoro.PomodoroPlannerService;
-import com.studyplanner.utils.DateUtils;
 import com.studyplanner.utils.ValidationUtils;
 
 import java.time.LocalDate;
@@ -23,13 +23,18 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SchedulerService {
+    private static final int MIN_PLAN_ITEM_MINUTES = 20;
+    private static final int RECENT_PLAN_HISTORY_LIMIT = 5;
+
     private final TopicRepository topicRepository;
     private final SubjectRepository subjectRepository;
     private final StudySessionRepository studySessionRepository;
@@ -51,12 +56,27 @@ public class SchedulerService {
     }
 
     public Optional<DailyPlan> getPlan(LocalDate planDate) {
-        return dailyPlanRepository.findByDate(planDate);
+        Optional<DailyPlan> freshPlan = dailyPlanRepository.findFreshByDate(planDate);
+        if (freshPlan.isPresent()) {
+            return freshPlan;
+        }
+
+        return dailyPlanRepository.findByDate(planDate)
+            .filter(DailyPlan::isStale)
+            .map(stalePlan -> generateDailyPlan(new PlanGenerationRequest(
+                planDate,
+                stalePlan.getAvailableMinutes(),
+                stalePlan.getFocusMinutes(),
+                stalePlan.getShortBreakMinutes()
+            )));
     }
 
     public DailyPlan generateDailyPlan(PlanGenerationRequest request) {
         ValidationUtils.require(request != null, "Plan request is required");
-        ValidationUtils.require(request.availableMinutes() > 0, "Available time must be greater than zero");
+        ValidationUtils.require(
+            request.availableMinutes() >= MIN_PLAN_ITEM_MINUTES,
+            "Available time must be at least " + MIN_PLAN_ITEM_MINUTES + " minutes"
+        );
 
         LocalDate planDate = request.planDate() != null ? request.planDate() : LocalDate.now();
         Map<Long, String> subjectNames = subjectRepository.findAll().stream()
@@ -67,35 +87,56 @@ public class SchedulerService {
         Map<Long, List<StudySession>> sessionsTodayByTopic = allSessions.stream()
             .filter(session -> planDate.equals(session.getSessionDate()))
             .collect(Collectors.groupingBy(StudySession::getTopicId, HashMap::new, Collectors.toList()));
-
-        List<Candidate> rankedCandidates = topicRepository.findAll().stream()
+        List<Topic> activeTopics = topicRepository.findAll().stream()
             .filter(topic -> !topic.isArchived())
+            .toList();
+        Map<Long, List<PlanHistoryEntry>> planHistoryByTopic = activeTopics.stream()
+            .collect(Collectors.toMap(
+                Topic::getId,
+                topic -> dailyPlanRepository.findRecentHistoryByTopicBeforeDate(
+                    topic.getId(),
+                    planDate,
+                    RECENT_PLAN_HISTORY_LIMIT
+                )
+            ));
+
+        List<Candidate> rankedCandidates = activeTopics.stream()
             .map(topic -> scoreTopic(topic, subjectNames.getOrDefault(topic.getSubjectId(), "Unknown Subject"),
                 sessionsByTopic.getOrDefault(topic.getId(), List.of()),
                 sessionsTodayByTopic.getOrDefault(topic.getId(), List.of()),
+                planHistoryByTopic.getOrDefault(topic.getId(), List.of()),
                 planDate))
             .filter(candidate -> candidate != null)
-            .sorted(Comparator.comparingDouble(Candidate::score).reversed()
+            .sorted(Comparator.comparing(Candidate::protectedForOrdering).reversed()
+                .thenComparing(Comparator.comparingDouble(Candidate::score).reversed())
                 .thenComparing(Candidate::daysToExam)
-                .thenComparing(candidate -> candidate.topic().getName()))
+                .thenComparing(candidate -> candidate.topic().getName(), String.CASE_INSENSITIVE_ORDER)
+                .thenComparingLong(candidate -> candidate.topic().getId()))
             .toList();
 
         DailyPlan dailyPlan = new DailyPlan();
         dailyPlan.setPlanDate(planDate);
         dailyPlan.setAvailableMinutes(request.availableMinutes());
+        dailyPlan.setFocusMinutes(request.focusMinutes());
+        dailyPlan.setShortBreakMinutes(request.shortBreakMinutes());
         dailyPlan.setGeneratedAt(LocalDateTime.now());
+        dailyPlan.setStale(false);
 
         List<PlanItem> items = new ArrayList<>();
+        Set<Long> scheduledTopicIds = new HashSet<>();
         int remainingMinutes = request.availableMinutes();
         int order = 1;
         int adjustedForToday = 0;
         for (Candidate candidate : rankedCandidates) {
-            if (remainingMinutes < 20) {
+            if (remainingMinutes < MIN_PLAN_ITEM_MINUTES) {
                 break;
+            }
+            if (scheduledTopicIds.contains(candidate.topic().getId())) {
+                continue;
             }
 
             int minutesForItem = Math.min(candidate.plannedMinutes(), remainingMinutes);
-            if (minutesForItem < 20) {
+            if (minutesForItem < MIN_PLAN_ITEM_MINUTES) {
                 continue;
             }
 
@@ -119,6 +160,7 @@ public class SchedulerService {
             ));
             item.setPomodoroCount(item.getPomodoroBlocks().size());
             items.add(item);
+            scheduledTopicIds.add(candidate.topic().getId());
             remainingMinutes -= minutesForItem;
             if (candidate.minutesAlreadyLoggedToday() > 0) {
                 adjustedForToday++;
@@ -137,8 +179,9 @@ public class SchedulerService {
     }
 
     private Candidate scoreTopic(Topic topic, String subjectName, List<StudySession> sessions,
-                                 List<StudySession> sessionsToday, LocalDate planDate) {
-        RetentionPrediction prediction = retentionPredictionService.predict(topic);
+                                 List<StudySession> sessionsToday, List<PlanHistoryEntry> planHistory,
+                                 LocalDate planDate) {
+        RetentionPrediction prediction = retentionPredictionService.predict(topic, planDate);
         double priority = topic.getPriority() / 5.0;
         long daysToExam = topic.getTargetExamDate() == null
             ? 999
@@ -148,14 +191,15 @@ public class SchedulerService {
             : ValidationUtils.clamp(1.0 - (daysToExam / 21.0), 0.05, 1.0);
         double difficulty = topic.getDifficulty() / 5.0;
         double recallRisk = 1.0 - prediction.probability();
-        double backlog = backlogScore(topic, sessions, planDate);
+        PlanningSignals signals = calculatePlanningSignals(topic, sessions, planHistory, planDate);
         boolean dueReview = topic.getNextReviewDate() != null && !topic.getNextReviewDate().isAfter(planDate);
         boolean lowRecall = prediction.probability() < 0.46;
         PlanItemType itemType = (dueReview || lowRecall) ? PlanItemType.REVIEW : PlanItemType.STUDY;
-        int basePlannedMinutes = estimateMinutes(topic, itemType, backlog, recallRisk);
+        int basePlannedMinutes = estimateMinutes(topic, itemType, signals.backlog(), recallRisk);
         TodayProgress todayProgress = summarizeTodayProgress(sessionsToday, basePlannedMinutes);
         boolean urgentTopic = daysToExam <= 2;
-        boolean criticalReview = dueReview && prediction.probability() < 0.35;
+        boolean criticalReview = dueReview && (signals.overdueDays() > 0 || prediction.probability() < 0.35);
+        double dueReviewBonus = calculateDueReviewBonus(dueReview, signals.overdueDays(), prediction.probability());
 
         if (todayProgress.isCoveredForToday() && !urgentTopic && !criticalReview) {
             return new Candidate(
@@ -168,7 +212,8 @@ public class SchedulerService {
                 daysToExam,
                 "Already covered by today's logged work.",
                 todayProgress.loggedMinutes(),
-                true
+                true,
+                false
             );
         }
 
@@ -176,61 +221,134 @@ public class SchedulerService {
             + scheduleWeights.getUrgencyWeight() * urgency
             + scheduleWeights.getDifficultyWeight() * difficulty
             + scheduleWeights.getRecallRiskWeight() * recallRisk
-            + scheduleWeights.getBacklogWeight() * backlog
-            + (dueReview ? scheduleWeights.getDueReviewBoost() : 0.0);
+            + scheduleWeights.getBacklogWeight() * signals.backlog()
+            + scheduleWeights.getStarvationWeight() * signals.starvation()
+            + dueReviewBonus;
         if (todayProgress.loggedMinutes() > 0 && !urgentTopic && !criticalReview) {
             score *= 0.92;
         }
 
-        int plannedMinutes = Math.max(20, basePlannedMinutes - todayProgress.loggedMinutes());
+        int plannedMinutes = Math.max(MIN_PLAN_ITEM_MINUTES, basePlannedMinutes - todayProgress.loggedMinutes());
         String reason = buildReason(
             topic,
             prediction,
             dueReview,
+            dueReviewBonus,
             daysToExam,
             priority,
             difficulty,
-            backlog,
+            signals,
             sessions,
-            todayProgress,
-            planDate
+            todayProgress
         );
 
         return new Candidate(topic, subjectName, prediction, itemType, score, plannedMinutes, daysToExam, reason,
-            todayProgress.loggedMinutes(), false);
+            todayProgress.loggedMinutes(), false, criticalReview || signals.starvation() >= 0.7);
     }
 
-    private double backlogScore(Topic topic, List<StudySession> sessions, LocalDate planDate) {
-        long overdueDays = topic.getNextReviewDate() == null ? 0 : Math.max(0, ChronoUnit.DAYS.between(topic.getNextReviewDate(), planDate));
-        double overdueComponent = ValidationUtils.clamp(overdueDays / 7.0, 0.0, 1.0);
+    private PlanningSignals calculatePlanningSignals(Topic topic, List<StudySession> sessions,
+                                                     List<PlanHistoryEntry> planHistory, LocalDate planDate) {
+        long overdueDays = topic.getNextReviewDate() == null
+            ? 0
+            : Math.max(0, ChronoUnit.DAYS.between(topic.getNextReviewDate(), planDate));
+        double overdueComponent = ValidationUtils.clamp(overdueDays / 21.0, 0.0, 1.0);
 
-        long daysSinceStudy = topic.getLastStudiedDate() == null
-            ? 14
-            : Math.max(0, ChronoUnit.DAYS.between(topic.getLastStudiedDate(), planDate));
-        double inactivityComponent = ValidationUtils.clamp(daysSinceStudy / 14.0, 0.0, 1.0);
+        LocalDate lastMeaningfulStudyDate = sessions.stream()
+            .filter(this::isMeaningfulStudy)
+            .map(StudySession::getSessionDate)
+            .max(LocalDate::compareTo)
+            .orElse(null);
+        long daysSinceMeaningfulStudy = lastMeaningfulStudyDate == null
+            ? 0
+            : Math.max(0, ChronoUnit.DAYS.between(lastMeaningfulStudyDate, planDate));
+        double inactivityComponent = lastMeaningfulStudyDate == null
+            ? 0.0
+            : ValidationUtils.clamp(daysSinceMeaningfulStudy / 21.0, 0.0, 1.0);
 
-        double incompleteRatio = 0.0;
+        double incompleteSessionPressure = 0.0;
         if (!sessions.isEmpty()) {
             List<StudySession> recent = sessions.stream()
                 .sorted(Comparator.comparing(StudySession::getSessionDate).reversed())
                 .limit(5)
                 .toList();
             for (StudySession session : recent) {
-                incompleteRatio += switch (session.getStatus()) {
+                incompleteSessionPressure += switch (session.getStatus()) {
                     case SKIPPED -> 1.0;
+                    case ABANDONED -> 1.0;
                     case PARTIALLY_COMPLETED -> 0.5;
+                    case STARTED, PAUSED -> 0.25;
                     case PLANNED, COMPLETED -> 0.0;
                 };
             }
-            incompleteRatio = incompleteRatio / recent.size();
+            incompleteSessionPressure = incompleteSessionPressure / recent.size();
         }
 
-        return ValidationUtils.clamp(overdueComponent * 0.5 + inactivityComponent * 0.3 + incompleteRatio * 0.2, 0.0, 1.0);
+        double missedPlanPressure = 0.0;
+        if (!planHistory.isEmpty()) {
+            for (PlanHistoryEntry historyEntry : planHistory) {
+                missedPlanPressure += switch (historyEntry.status()) {
+                    case PLANNED -> 1.0;
+                    case SKIPPED -> 0.85;
+                    case ABANDONED -> 0.90;
+                    case PARTIALLY_COMPLETED -> 0.45;
+                    case COMPLETED -> 0.0;
+                    case STARTED, PAUSED -> 0.65;
+                };
+            }
+            missedPlanPressure = missedPlanPressure / planHistory.size();
+        }
+
+        double backlog = ValidationUtils.clamp(
+            overdueComponent * 0.45
+                + inactivityComponent * 0.20
+                + incompleteSessionPressure * 0.20
+                + missedPlanPressure * 0.15,
+            0.0,
+            1.0
+        );
+
+        long daysSinceLastPlanned = planHistory.isEmpty()
+            ? 0
+            : Math.max(0, ChronoUnit.DAYS.between(planHistory.get(0).planDate(), planDate));
+        double planAgeComponent = planHistory.isEmpty()
+            ? 0.0
+            : ValidationUtils.clamp(daysSinceLastPlanned / 14.0, 0.0, 1.0);
+        double starvation = ValidationUtils.clamp(
+            Math.max(missedPlanPressure, Math.max(inactivityComponent, planAgeComponent)),
+            0.0,
+            1.0
+        );
+        if (missedPlanPressure > 0.60) {
+            starvation = Math.max(starvation, 0.75);
+        }
+
+        return new PlanningSignals(
+            overdueDays,
+            daysSinceMeaningfulStudy,
+            incompleteSessionPressure,
+            missedPlanPressure,
+            backlog,
+            starvation
+        );
+    }
+
+    private double calculateDueReviewBonus(boolean dueReview, long overdueDays, double recallProbability) {
+        if (!dueReview) {
+            return 0.0;
+        }
+        double overdueSeverity = ValidationUtils.clamp(overdueDays / 14.0, 0.0, 1.0);
+        double lowRecallSeverity = recallProbability < 0.35 ? 0.25 : 0.0;
+        return scheduleWeights.getDueReviewBoost() * (1.0 + overdueSeverity + lowRecallSeverity);
+    }
+
+    private boolean isMeaningfulStudy(StudySession session) {
+        return (session.getStatus() == SessionStatus.COMPLETED || session.getStatus() == SessionStatus.PARTIALLY_COMPLETED)
+            && session.getActualMinutes() > 0;
     }
 
     private int estimateMinutes(Topic topic, PlanItemType itemType, double backlog, double recallRisk) {
         if (itemType == PlanItemType.REVIEW) {
-            int reviewMinutes = Math.max(20, topic.getEstimatedStudyMinutes() / 2);
+            int reviewMinutes = Math.max(MIN_PLAN_ITEM_MINUTES, topic.getEstimatedStudyMinutes() / 2);
             if (backlog > 0.7 || recallRisk > 0.65) {
                 reviewMinutes += 10;
             }
@@ -239,9 +357,9 @@ public class SchedulerService {
         return Math.min(Math.max(25, topic.getEstimatedStudyMinutes()), 95);
     }
 
-    private String buildReason(Topic topic, RetentionPrediction prediction, boolean dueReview, long daysToExam,
-                               double priority, double difficulty, double backlog, List<StudySession> sessions,
-                               TodayProgress todayProgress, LocalDate planDate) {
+    private String buildReason(Topic topic, RetentionPrediction prediction, boolean dueReview, double dueReviewBonus,
+                               long daysToExam, double priority, double difficulty, PlanningSignals signals,
+                               List<StudySession> sessions, TodayProgress todayProgress) {
         List<ReasonComponent> reasons = new ArrayList<>();
         reasons.add(new ReasonComponent("Priority " + topic.getPriority() + "/5", scheduleWeights.getPriorityWeight() * priority));
 
@@ -258,24 +376,45 @@ public class SchedulerService {
         }
 
         if (dueReview) {
-            long overdueDays = Math.max(0, DateUtils.daysUntil(topic.getNextReviewDate(), planDate));
-            reasons.add(new ReasonComponent("review overdue by " + overdueDays + " days", scheduleWeights.getDueReviewBoost() + 0.05));
+            reasons.add(new ReasonComponent(
+                signals.overdueDays() > 0
+                    ? "review overdue by " + signals.overdueDays() + " days"
+                    : "review is due today",
+                dueReviewBonus
+            ));
         }
 
         if (difficulty >= 0.75) {
             reasons.add(new ReasonComponent("high difficulty", scheduleWeights.getDifficultyWeight() * difficulty));
         }
 
-        if (backlog > 0.55) {
-            reasons.add(new ReasonComponent("backlog is building", scheduleWeights.getBacklogWeight() * backlog));
+        if (signals.missedPlanPressure() >= 0.45) {
+            reasons.add(new ReasonComponent("missed earlier planned work", scheduleWeights.getStarvationWeight() * signals.missedPlanPressure()));
+        }
+
+        if (signals.daysSinceMeaningfulStudy() >= 7) {
+            reasons.add(new ReasonComponent(
+                "not meaningfully studied for " + signals.daysSinceMeaningfulStudy() + " days",
+                scheduleWeights.getStarvationWeight() * ValidationUtils.clamp(signals.daysSinceMeaningfulStudy() / 21.0, 0.0, 1.0)
+            ));
+        }
+
+        if (signals.backlog() > 0.55) {
+            reasons.add(new ReasonComponent("backlog is building", scheduleWeights.getBacklogWeight() * signals.backlog()));
         }
 
         if (todayProgress.loggedMinutes() > 0) {
             reasons.add(new ReasonComponent(todayProgress.loggedMinutes() + " minutes already logged today", 0.07));
         }
 
+        if (signals.starvation() >= 0.70) {
+            reasons.add(new ReasonComponent("fairness boost after recent neglect", scheduleWeights.getStarvationWeight() * signals.starvation()));
+        }
+
         long skippedOrPartial = sessions.stream()
-            .filter(session -> session.getStatus() == SessionStatus.SKIPPED || session.getStatus() == SessionStatus.PARTIALLY_COMPLETED)
+            .filter(session -> session.getStatus() == SessionStatus.SKIPPED
+                || session.getStatus() == SessionStatus.PARTIALLY_COMPLETED
+                || session.getStatus() == SessionStatus.ABANDONED)
             .count();
         if (skippedOrPartial >= 2) {
             reasons.add(new ReasonComponent("recent sessions were only partially completed", 0.06));
@@ -325,7 +464,18 @@ public class SchedulerService {
         long daysToExam,
         String reason,
         int minutesAlreadyLoggedToday,
-        boolean skipBecauseAlreadyCoveredToday
+        boolean skipBecauseAlreadyCoveredToday,
+        boolean protectedForOrdering
+    ) {
+    }
+
+    private record PlanningSignals(
+        long overdueDays,
+        long daysSinceMeaningfulStudy,
+        double incompleteSessionPressure,
+        double missedPlanPressure,
+        double backlog,
+        double starvation
     ) {
     }
 

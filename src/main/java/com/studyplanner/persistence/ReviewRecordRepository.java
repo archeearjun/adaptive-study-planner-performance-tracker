@@ -25,8 +25,19 @@ public class ReviewRecordRepository {
         return update(record);
     }
 
+    public ReviewRecord save(Connection connection, ReviewRecord record) {
+        try {
+            if (record.getId() == 0) {
+                return insert(connection, record);
+            }
+            return update(connection, record);
+        } catch (SQLException exception) {
+            throw new PersistenceException("Failed to save review record", exception);
+        }
+    }
+
     public List<ReviewRecord> findAll() {
-        String sql = "SELECT * FROM review_records ORDER BY review_date DESC";
+        String sql = "SELECT * FROM review_records ORDER BY review_date DESC, id DESC";
         List<ReviewRecord> records = new ArrayList<>();
         try (Connection connection = databaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
@@ -41,7 +52,7 @@ public class ReviewRecordRepository {
     }
 
     public List<ReviewRecord> findByTopicId(long topicId) {
-        String sql = "SELECT * FROM review_records WHERE topic_id = ? ORDER BY review_date DESC";
+        String sql = "SELECT * FROM review_records WHERE topic_id = ? ORDER BY review_date DESC, id DESC";
         List<ReviewRecord> records = new ArrayList<>();
         try (Connection connection = databaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -58,7 +69,7 @@ public class ReviewRecordRepository {
     }
 
     public Optional<ReviewRecord> findLatestByTopicId(long topicId) {
-        String sql = "SELECT * FROM review_records WHERE topic_id = ? ORDER BY review_date DESC LIMIT 1";
+        String sql = "SELECT * FROM review_records WHERE topic_id = ? ORDER BY review_date DESC, id DESC LIMIT 1";
         try (Connection connection = databaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, topicId);
@@ -92,6 +103,25 @@ public class ReviewRecordRepository {
         }
     }
 
+    private ReviewRecord insert(Connection connection, ReviewRecord record) throws SQLException {
+        String sql = """
+            INSERT INTO review_records(
+                topic_id, review_date, quality, easiness_factor_before, easiness_factor_after,
+                interval_before, interval_after, next_review_date
+            ) VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+            """;
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            bindRecord(statement, record);
+            statement.executeUpdate();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (keys.next()) {
+                    record.setId(keys.getLong(1));
+                }
+            }
+            return record;
+        }
+    }
+
     private ReviewRecord update(ReviewRecord record) {
         String sql = """
             UPDATE review_records
@@ -107,6 +137,21 @@ public class ReviewRecordRepository {
             return record;
         } catch (SQLException exception) {
             throw new PersistenceException("Failed to update review record " + record.getId(), exception);
+        }
+    }
+
+    private ReviewRecord update(Connection connection, ReviewRecord record) throws SQLException {
+        String sql = """
+            UPDATE review_records
+            SET topic_id = ?, review_date = ?, quality = ?, easiness_factor_before = ?, easiness_factor_after = ?,
+                interval_before = ?, interval_after = ?, next_review_date = ?
+            WHERE id = ?
+            """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            bindRecord(statement, record);
+            statement.setLong(9, record.getId());
+            statement.executeUpdate();
+            return record;
         }
     }
 

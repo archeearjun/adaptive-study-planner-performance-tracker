@@ -7,13 +7,16 @@ public class StudySession {
     private long id;
     private Long planItemId;
     private long topicId;
+    private Long subjectId;
     private LocalDate sessionDate;
     private LocalDateTime startedAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime endedAt;
     private int plannedMinutes;
     private int actualMinutes;
     private SessionStatus status;
-    private int focusQuality;
-    private double confidenceAfter;
+    private Integer focusQuality;
+    private Double confidenceAfter;
     private Double quizScore;
     private boolean reviewSession;
     private String notes;
@@ -22,13 +25,16 @@ public class StudySession {
     }
 
     public StudySession(long id, Long planItemId, long topicId, LocalDate sessionDate, LocalDateTime startedAt,
-                        int plannedMinutes, int actualMinutes, SessionStatus status, int focusQuality,
-                        double confidenceAfter, Double quizScore, boolean reviewSession, String notes) {
+                        LocalDateTime updatedAt, LocalDateTime endedAt, int plannedMinutes, int actualMinutes,
+                        SessionStatus status, Integer focusQuality, Double confidenceAfter, Double quizScore,
+                        boolean reviewSession, String notes) {
         this.id = id;
         this.planItemId = planItemId;
         this.topicId = topicId;
         this.sessionDate = sessionDate;
         this.startedAt = startedAt;
+        this.updatedAt = updatedAt;
+        this.endedAt = endedAt;
         this.plannedMinutes = plannedMinutes;
         this.actualMinutes = actualMinutes;
         this.status = status;
@@ -63,6 +69,14 @@ public class StudySession {
         this.topicId = topicId;
     }
 
+    public Long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
+    }
+
     public LocalDate getSessionDate() {
         return sessionDate;
     }
@@ -77,6 +91,22 @@ public class StudySession {
 
     public void setStartedAt(LocalDateTime startedAt) {
         this.startedAt = startedAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getEndedAt() {
+        return endedAt;
+    }
+
+    public void setEndedAt(LocalDateTime endedAt) {
+        this.endedAt = endedAt;
     }
 
     public int getPlannedMinutes() {
@@ -103,19 +133,19 @@ public class StudySession {
         this.status = status;
     }
 
-    public int getFocusQuality() {
+    public Integer getFocusQuality() {
         return focusQuality;
     }
 
-    public void setFocusQuality(int focusQuality) {
+    public void setFocusQuality(Integer focusQuality) {
         this.focusQuality = focusQuality;
     }
 
-    public double getConfidenceAfter() {
+    public Double getConfidenceAfter() {
         return confidenceAfter;
     }
 
-    public void setConfidenceAfter(double confidenceAfter) {
+    public void setConfidenceAfter(Double confidenceAfter) {
         this.confidenceAfter = confidenceAfter;
     }
 
@@ -141,5 +171,13 @@ public class StudySession {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isActive() {
+        return status != null && status.isActive();
+    }
+
+    public boolean isTerminal() {
+        return status != null && status.isTerminal();
     }
 }

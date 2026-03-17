@@ -59,17 +59,17 @@ public class ApplicationContext {
             studySessionRepository,
             reviewRecordRepository
         );
-        retentionPredictionService.retrainModel();
 
         PomodoroPlannerService pomodoroPlannerService = new PomodoroPlannerService();
         SpacedRepetitionService spacedRepetitionService = new SpacedRepetitionService();
 
-        this.subjectService = new SubjectService(subjectRepository);
+        this.subjectService = new SubjectService(subjectRepository, dailyPlanRepository);
         this.topicService = new TopicService(
             topicRepository,
             subjectRepository,
             studySessionRepository,
             reviewRecordRepository,
+            dailyPlanRepository,
             retentionPredictionService
         );
         this.schedulerService = new SchedulerService(
@@ -81,6 +81,7 @@ public class ApplicationContext {
             pomodoroPlannerService
         );
         this.sessionLoggingService = new SessionLoggingService(
+            databaseManager,
             topicRepository,
             studySessionRepository,
             reviewRecordRepository,
@@ -88,12 +89,13 @@ public class ApplicationContext {
             spacedRepetitionService,
             retentionPredictionService
         );
+        sessionLoggingService.abandonStaleSessions(LocalDate.now());
         this.performanceAnalyticsService = new PerformanceAnalyticsService(
             topicRepository,
             subjectRepository,
             studySessionRepository,
             reviewRecordRepository,
-            dailyPlanRepository,
+            schedulerService,
             retentionPredictionService
         );
 

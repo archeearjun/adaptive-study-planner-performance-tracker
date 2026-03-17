@@ -6,6 +6,7 @@ public class ScheduleWeights {
     private double difficultyWeight = 0.13;
     private double recallRiskWeight = 0.28;
     private double backlogWeight = 0.10;
+    private double starvationWeight = 0.10;
     private double dueReviewBoost = 0.08;
 
     public double getPriorityWeight() {
@@ -46,6 +47,14 @@ public class ScheduleWeights {
 
     public void setBacklogWeight(double backlogWeight) {
         this.backlogWeight = backlogWeight;
+    }
+
+    public double getStarvationWeight() {
+        return starvationWeight;
+    }
+
+    public void setStarvationWeight(double starvationWeight) {
+        this.starvationWeight = starvationWeight;
     }
 
     public double getDueReviewBoost() {

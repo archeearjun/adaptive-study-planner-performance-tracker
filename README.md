@@ -29,7 +29,7 @@ The application combines planning, review scheduling, execution tracking, and re
 - SM-2 spaced repetition updates for easiness factor, repetition count, interval, and next review date
 - Pomodoro block generation with configurable focus and short-break lengths
 - Session logging for completion status, duration, focus quality, confidence, quiz score, and review quality
-- Logistic regression retention predictor trained from local study history
+- Logistic regression retention predictor with bootstrap coefficients and optional local retraining from labeled review / quiz outcomes
 - Dashboard and analytics views for streaks, overdue reviews, completion rate, Pomodoros, and topic-level retention
 - Seeded demo data with 3 subjects, 12 topics, historical sessions, review records, and model training rows
 - Vercel-hosted static project site at the repository root
@@ -41,7 +41,7 @@ The application combines planning, review scheduling, execution tracking, and re
 2. Generate a daily plan for the available minutes.
 3. Work through study or review blocks in Pomodoro-sized chunks.
 4. Log the session and optionally enter a review quality.
-5. The app updates SM-2 review state, stores a new training example, retrains the retention model, and changes future planning output.
+5. The app updates SM-2 review state, stores a labeled retention observation when a review quality or quiz score is present, retrains the retention model when enough labeled outcomes exist, and changes future planning output.
 6. If the user regenerates the plan later the same day, previously completed work is taken into account instead of being blindly scheduled again.
 
 ## Architecture
@@ -138,10 +138,10 @@ Training features:
 
 How it is used:
 
-- seed coefficients give believable behavior from first launch
-- local training data refines weights as the user logs more sessions
+- bootstrap coefficients provide a deterministic estimate from first launch
+- only sessions with an objective label (`reviewQuality` or `quizScore`) are added to local training data
 - recall probability is displayed in the UI and fed directly into the scheduling score
-- after each logged session, the app stores a fresh retention training example and retrains the model
+- once enough labeled outcomes exist, local retraining refines the logistic-regression weights
 
 ## Database Schema
 
@@ -294,7 +294,7 @@ See `docs/vercel-deployment.md` for the exact deployment flow.
 ## Highlights
 
 - Built a Java-based study planning engine combining SM-2 spaced repetition, priority-weighted scheduling, and Pomodoro-based focus sessions
-- Integrated a logistic regression retention model to predict recall likelihood and dynamically adjust revision timing
+- Integrated a logistic regression retention model with bootstrap priors and local retraining from labeled review / quiz outcomes to influence revision timing
 - Added analytics for study consistency, overdue reviews, session quality, and topic-level retention trends using JavaFX + SQLite
 
 ## Tests Included

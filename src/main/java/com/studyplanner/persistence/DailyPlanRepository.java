@@ -1,6 +1,7 @@
 package com.studyplanner.persistence;
 
 import com.studyplanner.model.DailyPlan;
+import com.studyplanner.model.PlanHistoryEntry;
 import com.studyplanner.model.PlanItem;
 import com.studyplanner.model.PlanItemType;
 import com.studyplanner.model.PomodoroBlock;
@@ -39,8 +40,11 @@ public class DailyPlanRepository {
                 dailyPlan.setId(resultSet.getLong("id"));
                 dailyPlan.setPlanDate(JdbcUtils.getLocalDate(resultSet, "plan_date"));
                 dailyPlan.setAvailableMinutes(resultSet.getInt("available_minutes"));
+                dailyPlan.setFocusMinutes(readIntOrDefault(resultSet, "focus_minutes", 25));
+                dailyPlan.setShortBreakMinutes(readIntOrDefault(resultSet, "short_break_minutes", 5));
                 dailyPlan.setTotalPlannedMinutes(resultSet.getInt("total_planned_minutes"));
                 dailyPlan.setGeneratedAt(JdbcUtils.getLocalDateTime(resultSet, "generated_at"));
+                dailyPlan.setStale(readIntOrDefault(resultSet, "stale", 0) == 1);
                 dailyPlan.setSummary(resultSet.getString("summary"));
                 dailyPlan.setItems(loadItems(connection, dailyPlan.getId()));
                 return Optional.of(dailyPlan);
@@ -48,6 +52,10 @@ public class DailyPlanRepository {
         } catch (SQLException exception) {
             throw new PersistenceException("Failed to load daily plan for " + planDate, exception);
         }
+    }
+
+    public Optional<DailyPlan> findFreshByDate(LocalDate planDate) {
+        return findByDate(planDate).filter(plan -> !plan.isStale());
     }
 
     public DailyPlan saveOrReplace(DailyPlan plan) {
@@ -85,6 +93,16 @@ public class DailyPlanRepository {
         String sql = "UPDATE plan_items SET status = ?, completed_minutes = ?, quality_rating = ? WHERE id = ?";
         try (Connection connection = databaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
+            updatePlanItemProgress(connection, planItemId, status, completedMinutes, qualityRating);
+        } catch (SQLException exception) {
+            throw new PersistenceException("Failed to update plan item progress", exception);
+        }
+    }
+
+    public void updatePlanItemProgress(Connection connection, long planItemId, SessionStatus status,
+                                       int completedMinutes, Integer qualityRating) {
+        String sql = "UPDATE plan_items SET status = ?, completed_minutes = ?, quality_rating = ? WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, status.name());
             statement.setInt(2, completedMinutes);
             if (qualityRating == null) {
@@ -96,6 +114,58 @@ public class DailyPlanRepository {
             statement.executeUpdate();
         } catch (SQLException exception) {
             throw new PersistenceException("Failed to update plan item progress", exception);
+        }
+    }
+
+    public void markPlansFromDateStale(LocalDate fromDate) {
+        String sql = "UPDATE daily_plans SET stale = 1 WHERE plan_date >= ?";
+        try (Connection connection = databaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            markPlansFromDateStale(connection, fromDate);
+        } catch (SQLException exception) {
+            throw new PersistenceException("Failed to mark plans stale from " + fromDate, exception);
+        }
+    }
+
+    public void markPlansFromDateStale(Connection connection, LocalDate fromDate) {
+        String sql = "UPDATE daily_plans SET stale = 1 WHERE plan_date >= ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            JdbcUtils.setLocalDate(statement, 1, fromDate);
+            statement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new PersistenceException("Failed to mark plans stale from " + fromDate, exception);
+        }
+    }
+
+    public List<PlanHistoryEntry> findRecentHistoryByTopicBeforeDate(long topicId, LocalDate beforeDate, int limit) {
+        String sql = """
+            SELECT dp.plan_date, pi.status, pi.planned_minutes, pi.completed_minutes, pi.item_type
+            FROM plan_items pi
+            JOIN daily_plans dp ON dp.id = pi.plan_id
+            WHERE pi.topic_id = ? AND dp.plan_date < ?
+            ORDER BY dp.plan_date DESC, pi.recommended_order ASC
+            LIMIT ?
+            """;
+        List<PlanHistoryEntry> history = new ArrayList<>();
+        try (Connection connection = databaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, topicId);
+            JdbcUtils.setLocalDate(statement, 2, beforeDate);
+            statement.setInt(3, limit);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    history.add(new PlanHistoryEntry(
+                        JdbcUtils.getLocalDate(resultSet, "plan_date"),
+                        SessionStatus.valueOf(resultSet.getString("status")),
+                        resultSet.getInt("planned_minutes"),
+                        resultSet.getInt("completed_minutes"),
+                        PlanItemType.valueOf(resultSet.getString("item_type"))
+                    ));
+                }
+            }
+            return history;
+        } catch (SQLException exception) {
+            throw new PersistenceException("Failed to load plan history for topic " + topicId, exception);
         }
     }
 
@@ -118,15 +188,21 @@ public class DailyPlanRepository {
 
     private void insertPlan(Connection connection, DailyPlan plan) throws SQLException {
         String sql = """
-            INSERT INTO daily_plans(plan_date, available_minutes, total_planned_minutes, generated_at, summary)
-            VALUES(?, ?, ?, ?, ?)
+            INSERT INTO daily_plans(
+                plan_date, available_minutes, focus_minutes, short_break_minutes,
+                total_planned_minutes, generated_at, stale, summary
+            )
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?)
             """;
         try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             JdbcUtils.setLocalDate(statement, 1, plan.getPlanDate());
             statement.setInt(2, plan.getAvailableMinutes());
-            statement.setInt(3, plan.getTotalPlannedMinutes());
-            JdbcUtils.setLocalDateTime(statement, 4, plan.getGeneratedAt());
-            statement.setString(5, plan.getSummary());
+            statement.setInt(3, plan.getFocusMinutes());
+            statement.setInt(4, plan.getShortBreakMinutes());
+            statement.setInt(5, plan.getTotalPlannedMinutes());
+            JdbcUtils.setLocalDateTime(statement, 6, plan.getGeneratedAt());
+            statement.setInt(7, plan.isStale() ? 1 : 0);
+            statement.setString(8, plan.getSummary());
             statement.executeUpdate();
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {
@@ -196,6 +272,11 @@ public class DailyPlanRepository {
                 }
             }
         }
+    }
+
+    private int readIntOrDefault(ResultSet resultSet, String columnName, int defaultValue) throws SQLException {
+        int value = resultSet.getInt(columnName);
+        return resultSet.wasNull() ? defaultValue : value;
     }
 
     private List<PlanItem> loadItems(Connection connection, long planId) throws SQLException {

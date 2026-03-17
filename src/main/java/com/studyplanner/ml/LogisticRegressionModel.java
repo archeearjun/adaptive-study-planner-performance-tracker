@@ -21,6 +21,8 @@ public class LogisticRegressionModel {
         }
         this.weights = Arrays.copyOf(weights, weights.length);
         this.bias = bias;
+        this.trained = false;
+        this.trainingAccuracy = 0.0;
     }
 
     public void train(List<double[]> features, List<Integer> labels, int epochs, double learningRate, double l2Penalty) {

@@ -127,8 +127,11 @@ public class DemoDataSeeder {
                                boolean reviewSession, Double quizScore, String notes) {
         StudySession session = new StudySession();
         session.setTopicId(topic.getId());
+        session.setSubjectId(topic.getSubjectId());
         session.setSessionDate(sessionDate);
         session.setStartedAt(sessionDate.atTime(18, 0));
+        session.setUpdatedAt(sessionDate.atTime(19, 0));
+        session.setEndedAt(sessionDate.atTime(19, 0));
         session.setPlannedMinutes(plannedMinutes);
         session.setActualMinutes(actualMinutes);
         session.setStatus(status);

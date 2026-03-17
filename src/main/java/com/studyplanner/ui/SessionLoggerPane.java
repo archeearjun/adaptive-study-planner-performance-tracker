@@ -396,6 +396,7 @@ public class SessionLoggerPane extends ScrollPane implements RefreshableView {
             Long planItemId = planItemCombo.getValue() == null ? null : planItemCombo.getValue().getId();
 
             context.getSessionLoggingService().logSession(new SessionLogRequest(
+                null,
                 planItemId,
                 topic.topicId(),
                 sessionDatePicker.getValue(),
@@ -403,7 +404,7 @@ public class SessionLoggerPane extends ScrollPane implements RefreshableView {
                 actualMinutesSpinner.getValue(),
                 statusCombo.getValue(),
                 focusQualitySpinner.getValue(),
-                confidenceSpinner.getValue(),
+                confidenceSpinner.getValue().doubleValue(),
                 quizScore,
                 reviewQuality,
                 reviewSessionBox.isSelected(),

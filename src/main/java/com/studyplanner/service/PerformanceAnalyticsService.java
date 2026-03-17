@@ -10,11 +10,11 @@ import com.studyplanner.model.SessionStatus;
 import com.studyplanner.model.StudySession;
 import com.studyplanner.model.Subject;
 import com.studyplanner.model.Topic;
-import com.studyplanner.persistence.DailyPlanRepository;
 import com.studyplanner.persistence.ReviewRecordRepository;
 import com.studyplanner.persistence.StudySessionRepository;
 import com.studyplanner.persistence.SubjectRepository;
 import com.studyplanner.persistence.TopicRepository;
+import com.studyplanner.service.scheduler.SchedulerService;
 import com.studyplanner.utils.DateUtils;
 import com.studyplanner.utils.ValidationUtils;
 
@@ -32,27 +32,27 @@ public class PerformanceAnalyticsService {
     private final SubjectRepository subjectRepository;
     private final StudySessionRepository studySessionRepository;
     private final ReviewRecordRepository reviewRecordRepository;
-    private final DailyPlanRepository dailyPlanRepository;
+    private final SchedulerService schedulerService;
     private final RetentionPredictionService retentionPredictionService;
 
     public PerformanceAnalyticsService(TopicRepository topicRepository, SubjectRepository subjectRepository,
                                        StudySessionRepository studySessionRepository,
                                        ReviewRecordRepository reviewRecordRepository,
-                                       DailyPlanRepository dailyPlanRepository,
+                                       SchedulerService schedulerService,
                                        RetentionPredictionService retentionPredictionService) {
         this.topicRepository = topicRepository;
         this.subjectRepository = subjectRepository;
         this.studySessionRepository = studySessionRepository;
         this.reviewRecordRepository = reviewRecordRepository;
-        this.dailyPlanRepository = dailyPlanRepository;
+        this.schedulerService = schedulerService;
         this.retentionPredictionService = retentionPredictionService;
     }
 
     public DashboardSummary getDashboardSummary(LocalDate date) {
-        Optional<DailyPlan> todayPlan = dailyPlanRepository.findByDate(date);
+        Optional<DailyPlan> todayPlan = schedulerService.getPlan(date);
         List<Topic> activeTopics = topicRepository.findAll().stream().filter(topic -> !topic.isArchived()).toList();
         int loggedMinutesToday = studySessionRepository.findByDateRange(date, date).stream()
-            .filter(session -> session.getStatus() == SessionStatus.COMPLETED || session.getStatus() == SessionStatus.PARTIALLY_COMPLETED)
+            .filter(session -> session.getStatus().countsAsStudiedWork())
             .mapToInt(StudySession::getActualMinutes)
             .sum();
         int overdueReviews = (int) activeTopics.stream()
@@ -60,7 +60,10 @@ public class PerformanceAnalyticsService {
             .count();
         double averageRecall = activeTopics.isEmpty()
             ? 0.0
-            : activeTopics.stream().mapToDouble(retentionPredictionService::predictProbability).average().orElse(0.0);
+            : activeTopics.stream()
+                .mapToDouble(topic -> retentionPredictionService.predictProbability(topic, date))
+                .average()
+                .orElse(0.0);
         int tasksDueToday = todayPlan.map(plan -> plan.getItems().size()).orElseGet(() ->
             (int) activeTopics.stream()
                 .filter(topic -> topic.getNextReviewDate() != null && !topic.getNextReviewDate().isAfter(date))
@@ -83,7 +86,7 @@ public class PerformanceAnalyticsService {
 
     public int getStudyStreak(LocalDate referenceDate) {
         List<StudySession> sessions = studySessionRepository.findAll().stream()
-            .filter(session -> session.getStatus() == SessionStatus.COMPLETED || session.getStatus() == SessionStatus.PARTIALLY_COMPLETED)
+            .filter(session -> session.getStatus().countsAsStudiedWork())
             .toList();
         if (sessions.isEmpty()) {
             return 0;
@@ -121,7 +124,10 @@ public class PerformanceAnalyticsService {
         LocalDate cursor = start;
         while (!cursor.isAfter(end)) {
             List<StudySession> sessions = byDate.getOrDefault(cursor, List.of());
-            int studiedMinutes = sessions.stream().mapToInt(StudySession::getActualMinutes).sum();
+            int studiedMinutes = sessions.stream()
+                .filter(session -> session.getStatus().countsAsStudiedWork())
+                .mapToInt(StudySession::getActualMinutes)
+                .sum();
             int completedSessions = (int) sessions.stream()
                 .filter(session -> session.getStatus() == SessionStatus.COMPLETED)
                 .count();
@@ -141,7 +147,7 @@ public class PerformanceAnalyticsService {
             score += switch (session.getStatus()) {
                 case COMPLETED -> 1.0;
                 case PARTIALLY_COMPLETED -> 0.5;
-                case PLANNED, SKIPPED -> 0.0;
+                case STARTED, PAUSED, PLANNED, SKIPPED, ABANDONED -> 0.0;
             };
         }
         return ValidationUtils.clamp(score / sessions.size(), 0.0, 1.0);
@@ -149,14 +155,17 @@ public class PerformanceAnalyticsService {
 
     public int getTotalPomodorosCompleted() {
         return studySessionRepository.findAll().stream()
-            .filter(session -> session.getStatus() == SessionStatus.COMPLETED || session.getStatus() == SessionStatus.PARTIALLY_COMPLETED)
+            .filter(session -> session.getStatus().countsAsStudiedWork())
             .mapToInt(session -> Math.max(1, (int) Math.round(session.getActualMinutes() / 25.0)))
             .sum();
     }
 
     public double getAverageSessionQuality() {
         return studySessionRepository.findAll().stream()
-            .mapToInt(StudySession::getFocusQuality)
+            .filter(session -> session.getStatus().countsAsStudiedWork())
+            .map(StudySession::getFocusQuality)
+            .filter(quality -> quality != null)
+            .mapToInt(Integer::intValue)
             .average()
             .orElse(0.0);
     }
@@ -169,25 +178,32 @@ public class PerformanceAnalyticsService {
         Map<Long, List<StudySession>> sessionsBySubject = new HashMap<>();
 
         for (StudySession session : studySessionRepository.findAll()) {
-            Topic topic = topicsById.get(session.getTopicId());
-            if (topic == null) {
+            Long subjectId = session.getSubjectId();
+            if (subjectId == null) {
+                Topic topic = topicsById.get(session.getTopicId());
+                subjectId = topic == null ? null : topic.getSubjectId();
+            }
+            if (subjectId == null) {
                 continue;
             }
-            sessionsBySubject.computeIfAbsent(topic.getSubjectId(), ignored -> new ArrayList<>()).add(session);
+            sessionsBySubject.computeIfAbsent(subjectId, ignored -> new ArrayList<>()).add(session);
         }
 
         List<SubjectStudyBreakdown> breakdown = new ArrayList<>();
         for (Map.Entry<Long, List<StudySession>> entry : sessionsBySubject.entrySet()) {
             List<StudySession> sessions = entry.getValue();
-            int minutes = sessions.stream().mapToInt(StudySession::getActualMinutes).sum();
+            List<StudySession> studiedSessions = sessions.stream()
+                .filter(session -> session.getStatus().countsAsStudiedWork())
+                .toList();
+            int minutes = studiedSessions.stream().mapToInt(StudySession::getActualMinutes).sum();
             int pomodoros = sessions.stream()
-                .filter(session -> session.getStatus() != SessionStatus.SKIPPED)
+                .filter(session -> session.getStatus().countsAsStudiedWork())
                 .mapToInt(session -> Math.max(1, (int) Math.round(session.getActualMinutes() / 25.0)))
                 .sum();
             double completionRate = sessions.stream().mapToDouble(session -> switch (session.getStatus()) {
                 case COMPLETED -> 1.0;
                 case PARTIALLY_COMPLETED -> 0.5;
-                case PLANNED, SKIPPED -> 0.0;
+                case STARTED, PAUSED, PLANNED, SKIPPED, ABANDONED -> 0.0;
             }).average().orElse(0.0);
 
             breakdown.add(new SubjectStudyBreakdown(
@@ -212,11 +228,22 @@ public class PerformanceAnalyticsService {
             .filter(topic -> !topic.isArchived())
             .map(topic -> {
                 List<StudySession> sessions = sessionsByTopic.getOrDefault(topic.getId(), List.of());
-                int totalSessions = sessions.size();
-                int totalMinutes = sessions.stream().mapToInt(StudySession::getActualMinutes).sum();
+                List<StudySession> terminalSessions = sessions.stream()
+                    .filter(session -> session.getStatus().isTerminal())
+                    .toList();
+                int totalSessions = terminalSessions.size();
+                int totalMinutes = terminalSessions.stream()
+                    .filter(session -> session.getStatus().countsAsStudiedWork())
+                    .mapToInt(StudySession::getActualMinutes)
+                    .sum();
                 double averageConfidence = sessions.isEmpty()
                     ? topic.getConfidenceLevel()
-                    : sessions.stream().mapToDouble(StudySession::getConfidenceAfter).average().orElse(topic.getConfidenceLevel());
+                    : sessions.stream()
+                        .map(StudySession::getConfidenceAfter)
+                        .filter(confidence -> confidence != null)
+                        .mapToDouble(Double::doubleValue)
+                        .average()
+                        .orElse(topic.getConfidenceLevel());
                 double revisionSuccessRate = reviewRecordRepository.findByTopicId(topic.getId()).stream()
                     .mapToInt(review -> review.getQuality() >= 3 ? 1 : 0)
                     .average()

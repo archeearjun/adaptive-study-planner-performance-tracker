@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class RetentionTrainingExample {
     private long id;
     private long topicId;
+    private Long sourceSessionId;
     private LocalDate capturedOn;
     private double daysSinceLastRevision;
     private double difficulty;
@@ -32,6 +33,14 @@ public class RetentionTrainingExample {
 
     public void setTopicId(long topicId) {
         this.topicId = topicId;
+    }
+
+    public Long getSourceSessionId() {
+        return sourceSessionId;
+    }
+
+    public void setSourceSessionId(Long sourceSessionId) {
+        this.sourceSessionId = sourceSessionId;
     }
 
     public LocalDate getCapturedOn() {
