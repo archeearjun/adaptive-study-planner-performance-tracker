@@ -1,7 +1,7 @@
 # Resume Project Entry
 
 Adaptive Study Planner & Performance Tracker | Java 17, JavaFX, SQLite, Maven  
-Live: add the Vercel production URL after deployment  
+Live: https://adaptive-study-planner-performance.vercel.app/  
 GitHub: https://github.com/archeearjun/adaptive-study-planner-performance-tracker  
 Download: https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/tag/v1.0.0
 

@@ -268,6 +268,7 @@ See `docs/vercel-deployment.md` for the exact deployment flow.
 
 ## Public Links
 
+- Live showcase: `https://adaptive-study-planner-performance.vercel.app/`
 - GitHub repository: `https://github.com/archeearjun/adaptive-study-planner-performance-tracker`
 - GitHub release page: `https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/tag/v1.0.0`
 - Direct Windows download: `https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/download/v1.0.0/AdaptiveStudyPlanner-windows-x64.zip`

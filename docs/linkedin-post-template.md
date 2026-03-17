@@ -28,7 +28,7 @@ Tech stack:
 
 Public links:
 
-- Live showcase: add the Vercel production URL after deployment
+- Live showcase: https://adaptive-study-planner-performance.vercel.app/
 - GitHub: https://github.com/archeearjun/adaptive-study-planner-performance-tracker
 - Download: https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/tag/v1.0.0
 

@@ -45,5 +45,5 @@ Vercel is not hosting the JavaFX runtime here. The desktop application should be
 ## Current Status
 
 - The repository layout is ready for Vercel.
-- A live production URL still requires authenticated Vercel access.
-- Without a valid Vercel login or token, a deployment cannot be created from the CLI.
+- Live production URL: `https://adaptive-study-planner-performance.vercel.app/`
+- Future CLI deploys still require a valid Vercel login or token.
