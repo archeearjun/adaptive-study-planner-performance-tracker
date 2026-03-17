@@ -3,6 +3,7 @@ package com.studyplanner.ui;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -16,7 +17,7 @@ public final class UiFactory {
         titleLabel.getStyleClass().add("section-title");
 
         VBox card = new VBox(10);
-        card.getStyleClass().add("card");
+        card.getStyleClass().addAll("card", "surface-card");
         card.setPadding(new Insets(16));
         card.getChildren().add(titleLabel);
         card.getChildren().addAll(body);
@@ -34,9 +35,10 @@ public final class UiFactory {
         supportLabel.setWrapText(true);
 
         VBox card = new VBox(8, titleLabel, valueLabel, supportLabel);
-        card.getStyleClass().add("summary-card");
+        card.getStyleClass().addAll("summary-card", "metric-card");
         card.setPadding(new Insets(18));
-        VBox.setVgrow(card, Priority.ALWAYS);
+        HBox.setHgrow(card, Priority.ALWAYS);
+        card.setMaxWidth(Double.MAX_VALUE);
         return card;
     }
 
@@ -44,5 +46,11 @@ public final class UiFactory {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
         return spacer;
+    }
+
+    public static Label createChip(String text, String toneStyleClass) {
+        Label chip = new Label(text);
+        chip.getStyleClass().addAll("chip", toneStyleClass);
+        return chip;
     }
 }

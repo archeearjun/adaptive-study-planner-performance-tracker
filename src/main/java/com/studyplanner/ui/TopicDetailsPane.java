@@ -41,6 +41,7 @@ public class TopicDetailsPane extends ScrollPane implements RefreshableView {
 
     public TopicDetailsPane(ApplicationContext context) {
         this.context = context;
+        getStyleClass().add("screen-scroller");
         setFitToWidth(true);
         setPadding(new Insets(4));
         setContent(buildContent());
@@ -107,6 +108,7 @@ public class TopicDetailsPane extends ScrollPane implements RefreshableView {
 
     private void configureTopicTable() {
         topicTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        topicTable.setPlaceholder(new Label("No topics available."));
 
         TableColumn<TopicOverview, String> subjectColumn = new TableColumn<>("Subject");
         subjectColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().subjectName()));
@@ -122,6 +124,7 @@ public class TopicDetailsPane extends ScrollPane implements RefreshableView {
 
     private void configureSessionTable() {
         sessionTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        sessionTable.setPlaceholder(new Label("No sessions yet."));
         TableColumn<StudySession, Object> dateColumn = new TableColumn<>("Date");
         dateColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getSessionDate()));
         TableColumn<StudySession, String> statusColumn = new TableColumn<>("Status");
@@ -135,6 +138,7 @@ public class TopicDetailsPane extends ScrollPane implements RefreshableView {
 
     private void configureReviewTable() {
         reviewTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        reviewTable.setPlaceholder(new Label("No review history yet."));
         TableColumn<ReviewRecord, Object> dateColumn = new TableColumn<>("Review Date");
         dateColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getReviewDate()));
         TableColumn<ReviewRecord, Number> qualityColumn = new TableColumn<>("Quality");

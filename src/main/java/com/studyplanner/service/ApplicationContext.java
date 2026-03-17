@@ -23,6 +23,7 @@ public class ApplicationContext {
     private final ReviewRecordRepository reviewRecordRepository;
     private final DailyPlanRepository dailyPlanRepository;
     private final RetentionTrainingDataRepository retentionTrainingDataRepository;
+    private final DemoDataSeeder demoDataSeeder;
 
     private final SubjectService subjectService;
     private final TopicService topicService;
@@ -32,6 +33,10 @@ public class ApplicationContext {
     private final PerformanceAnalyticsService performanceAnalyticsService;
 
     public ApplicationContext() {
+        this(false);
+    }
+
+    public ApplicationContext(boolean seedDemoData) {
         this.databaseManager = new DatabaseManager();
         databaseManager.initialize();
 
@@ -41,15 +46,13 @@ public class ApplicationContext {
         this.reviewRecordRepository = new ReviewRecordRepository(databaseManager);
         this.dailyPlanRepository = new DailyPlanRepository(databaseManager);
         this.retentionTrainingDataRepository = new RetentionTrainingDataRepository(databaseManager);
-
-        DemoDataSeeder demoDataSeeder = new DemoDataSeeder(
+        this.demoDataSeeder = new DemoDataSeeder(
             subjectRepository,
             topicRepository,
             studySessionRepository,
             reviewRecordRepository,
             retentionTrainingDataRepository
         );
-        demoDataSeeder.seedIfEmpty();
 
         this.retentionPredictionService = new RetentionPredictionService(
             retentionTrainingDataRepository,
@@ -94,10 +97,11 @@ public class ApplicationContext {
             retentionPredictionService
         );
 
-        schedulerService.getPlan(LocalDate.now())
-            .orElseGet(() -> schedulerService.generateDailyPlan(
-                new PlanGenerationRequest(LocalDate.now(), 180, 25, 5)
-            ));
+        if (seedDemoData && isWorkspaceEmpty()) {
+            seedDemoWorkspace();
+        } else {
+            retentionPredictionService.retrainModel();
+        }
     }
 
     public DatabaseManager getDatabaseManager() {
@@ -126,5 +130,22 @@ public class ApplicationContext {
 
     public PerformanceAnalyticsService getPerformanceAnalyticsService() {
         return performanceAnalyticsService;
+    }
+
+    public boolean isWorkspaceEmpty() {
+        return subjectRepository.count() == 0;
+    }
+
+    public void seedDemoWorkspace() {
+        demoDataSeeder.seedIfEmpty();
+        retentionPredictionService.retrainModel();
+        ensurePlanForToday(180, 25, 5);
+    }
+
+    public void ensurePlanForToday(int availableMinutes, int focusMinutes, int shortBreakMinutes) {
+        schedulerService.getPlan(LocalDate.now())
+            .orElseGet(() -> schedulerService.generateDailyPlan(
+                new PlanGenerationRequest(LocalDate.now(), availableMinutes, focusMinutes, shortBreakMinutes)
+            ));
     }
 }

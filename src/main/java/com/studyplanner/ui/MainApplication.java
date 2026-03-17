@@ -11,7 +11,9 @@ import java.nio.file.Paths;
 public class MainApplication extends Application {
     @Override
     public void start(Stage stage) {
-        ApplicationContext context = new ApplicationContext();
+        boolean seedDemoData = Boolean.getBoolean("studyplanner.seedDemoData")
+            || Boolean.getBoolean("studyplanner.exportScreenshots");
+        ApplicationContext context = new ApplicationContext(seedDemoData);
         MainView root = new MainView(context);
         Scene scene = new Scene(root, 1520, 960);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());

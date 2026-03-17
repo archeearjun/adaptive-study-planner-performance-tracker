@@ -54,6 +54,7 @@ public class ManagementPane extends ScrollPane implements RefreshableView {
     public ManagementPane(ApplicationContext context, Runnable afterMutation) {
         this.context = context;
         this.afterMutation = afterMutation;
+        getStyleClass().add("screen-scroller");
         setFitToWidth(true);
         setPadding(new Insets(4));
         setContent(buildContent());
@@ -217,6 +218,7 @@ public class ManagementPane extends ScrollPane implements RefreshableView {
 
     private void configureSubjectTable() {
         subjectTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        subjectTable.setPlaceholder(new Label("No subjects yet."));
         TableColumn<Subject, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getName()));
         TableColumn<Subject, String> descriptionColumn = new TableColumn<>("Description");
@@ -226,6 +228,7 @@ public class ManagementPane extends ScrollPane implements RefreshableView {
 
     private void configureTopicTable() {
         topicTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        topicTable.setPlaceholder(new Label("No topics yet."));
         TableColumn<TopicOverview, String> subjectColumn = new TableColumn<>("Subject");
         subjectColumn.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().subjectName()));
         TableColumn<TopicOverview, String> topicColumn = new TableColumn<>("Topic");
