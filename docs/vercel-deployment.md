@@ -7,28 +7,38 @@ This repository contains two deliverables:
 
 Only the static portfolio site is intended for Vercel deployment.
 
-## Recommended Setup
+## What Gets Deployed
 
-1. Push the repository to GitHub.
-2. Import the repository into Vercel.
-3. Leave the framework preset as static or other.
-4. Deploy the root directory as-is.
-
-Files used by the portfolio site:
+Deploy the repository root as a static site. The relevant files are:
 
 - `index.html`
 - `site.css`
 - `vercel.json`
+- `docs/screenshots/*`
 
-## What To Update Before Sharing
+## Deployment Flow
 
-- Replace screenshot placeholders with real images in `docs/screenshots/`
-- Add your GitHub repository URL to the site if you want a public source link
-- Add a downloadable build link once you package the desktop app for release
+1. Make sure the GitHub repo is up to date.
+2. Authenticate with Vercel:
+   - `npx vercel@latest login`
+   - or use a valid `VERCEL_TOKEN`
+3. From the repository root, run:
+   - `npx vercel@latest deploy`
+4. When the preview looks correct, promote it:
+   - `npx vercel@latest deploy --prod`
+
+If you prefer the dashboard flow, import the GitHub repository into Vercel and keep the project at the repository root.
 
 ## Important Constraint
 
 Vercel is not hosting the JavaFX runtime here. The desktop application should be:
 
-- run locally with Maven, or
-- packaged separately for download
+- run locally with Maven
+- packaged with `scripts/package-windows.ps1`
+- shared as a GitHub release asset or other desktop download
+
+## Current Status
+
+- The repository layout is ready for Vercel.
+- A live production URL still requires authenticated Vercel access.
+- Without a valid Vercel login or token, a deployment cannot be created from the CLI.

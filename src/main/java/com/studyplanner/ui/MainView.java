@@ -17,6 +17,7 @@ import java.util.List;
 
 public class MainView extends BorderPane {
     private final List<RefreshableView> refreshableViews = new ArrayList<>();
+    private final TabPane tabPane;
 
     public MainView(ApplicationContext context) {
         getStyleClass().add("app-shell");
@@ -28,16 +29,17 @@ public class MainView extends BorderPane {
         SessionLoggerPane sessionLoggerPane = register(new SessionLoggerPane(context, this::refreshAll));
         AnalyticsPane analyticsPane = register(new AnalyticsPane(context));
         TopicDetailsPane topicDetailsPane = register(new TopicDetailsPane(context));
-
-        setTop(buildHeader(context));
-        setCenter(buildTabs(
+        this.tabPane = buildTabs(
             dashboardPane,
             managementPane,
             plannerPane,
             sessionLoggerPane,
             analyticsPane,
             topicDetailsPane
-        ));
+        );
+
+        setTop(buildHeader(context));
+        setCenter(tabPane);
 
         refreshAll();
     }
@@ -52,7 +54,7 @@ public class MainView extends BorderPane {
         subtitle.getStyleClass().add("hero-subtitle");
         subtitle.setWrapText(true);
 
-        Label databasePath = new Label("SQLite database: " + context.getDatabaseManager().getDatabasePath().toAbsolutePath());
+        Label databasePath = new Label("SQLite storage: " + context.getDatabaseManager().getDatabaseLocationLabel());
         databasePath.getStyleClass().add("hero-meta");
 
         VBox copy = new VBox(8, title, subtitle, databasePath);
@@ -101,7 +103,14 @@ public class MainView extends BorderPane {
         return view;
     }
 
-    private void refreshAll() {
+    public void refreshAll() {
         refreshableViews.forEach(RefreshableView::refresh);
+    }
+
+    public void selectTab(String title) {
+        tabPane.getTabs().stream()
+            .filter(tab -> tab.getText().equals(title))
+            .findFirst()
+            .ifPresent(tab -> tabPane.getSelectionModel().select(tab));
     }
 }

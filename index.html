@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adaptive Study Planner & Performance Tracker</title>
-    <meta name="description" content="Portfolio project: a Java 17, JavaFX, and SQLite study planning engine that combines SM-2 spaced repetition, priority scheduling, Pomodoro planning, and logistic-regression-based retention prediction.">
+    <meta name="description" content="Portfolio project: a Java 17, JavaFX, and SQLite study planning engine that combines SM-2 spaced repetition, weighted scheduling, Pomodoro planning, analytics, and logistic-regression-based retention prediction.">
     <link rel="stylesheet" href="site.css">
 </head>
 <body>
@@ -17,9 +17,9 @@
                 </div>
                 <div class="nav-links">
                     <a href="#product">Product</a>
+                    <a href="#showcase">Screens</a>
                     <a href="#architecture">Architecture</a>
-                    <a href="#showcase">Showcase</a>
-                    <a href="#run">Run It</a>
+                    <a href="#distribution">Distribution</a>
                 </div>
             </nav>
 
@@ -33,8 +33,9 @@
                         analytics, and a custom logistic regression retention predictor.
                     </p>
                     <div class="cta-row">
-                        <a class="button primary" href="#run">Run Locally</a>
-                        <a class="button secondary" href="README.md">Read The README</a>
+                        <a class="button primary" href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker" target="_blank" rel="noreferrer">View Source</a>
+                        <a class="button secondary" href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases" target="_blank" rel="noreferrer">Windows Release</a>
+                        <a class="button secondary" href="README.md">Read README</a>
                     </div>
                     <div class="resume-panel">
                         <p>Resume-ready outcome</p>
@@ -63,8 +64,16 @@
                         <ul>
                             <li>The planner explains why each topic was scheduled.</li>
                             <li>Session logs change future plans instead of just storing history.</li>
-                            <li>The project includes persistence, seeded data, tests, and a deployable showcase.</li>
+                            <li>The project includes persistence, seeded data, packaging scripts, screenshots, and tests.</li>
                         </ul>
+                    </section>
+                    <section class="signal-card">
+                        <p class="signal-label">Resume links</p>
+                        <div class="link-stack">
+                            <a href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker" target="_blank" rel="noreferrer">GitHub repository</a>
+                            <a href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases" target="_blank" rel="noreferrer">Releases / download</a>
+                            <span>Live: use this site URL after deploying the root static site on Vercel.</span>
+                        </div>
                     </section>
                 </aside>
             </div>
@@ -74,7 +83,7 @@
             <section class="metrics-strip" id="product">
                 <article>
                     <span class="metric">6</span>
-                    <p>desktop screens covering dashboard, planning, logging, analytics, and topic drill-downs</p>
+                    <p>desktop screens covering dashboard, planning, topic management, logging, analytics, and topic drill-downs</p>
                 </article>
                 <article>
                     <span class="metric">12</span>
@@ -86,7 +95,7 @@
                 </article>
                 <article>
                     <span class="metric">1</span>
-                    <p>desktop product plus a Vercel-hostable project showcase for LinkedIn and portfolio sharing</p>
+                    <p>desktop product plus a Vercel-hostable project showcase for LinkedIn and recruiter sharing</p>
                 </article>
             </section>
 
@@ -110,7 +119,7 @@
                     </article>
                     <article class="feature-card">
                         <h3>Retention Prediction</h3>
-                        <p>Uses a custom logistic regression implementation to estimate whether a learner is likely to remember a topic.</p>
+                        <p>Uses a custom logistic regression model to estimate whether a learner is likely to remember a topic.</p>
                     </article>
                     <article class="feature-card">
                         <h3>Performance Analytics</h3>
@@ -118,7 +127,46 @@
                     </article>
                     <article class="feature-card">
                         <h3>Replanning After Progress</h3>
-                        <p>Logged work now affects same-day regeneration, so completed topics are removed or shortened instead of being blindly repeated.</p>
+                        <p>Logged work changes the same-day queue so completed topics are removed or shortened instead of being blindly repeated.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block showcase-block" id="showcase">
+                <div class="section-heading">
+                    <p class="eyebrow">Real product screens</p>
+                    <h2>Actual screenshots from the JavaFX desktop app</h2>
+                </div>
+                <div class="showcase-grid">
+                    <article class="shot-card">
+                        <img class="shot-image" src="docs/screenshots/dashboard.png" alt="Dashboard screenshot">
+                        <h3>Dashboard</h3>
+                        <p>Shows planned vs logged time, overdue reviews, recall averages, and at-risk topics.</p>
+                    </article>
+                    <article class="shot-card">
+                        <img class="shot-image" src="docs/screenshots/management.png" alt="Subjects and topics management screenshot">
+                        <h3>Subjects & Topics</h3>
+                        <p>CRUD screen for subjects, topics, difficulty, confidence, exam dates, and review state.</p>
+                    </article>
+                    <article class="shot-card">
+                        <img class="shot-image" src="docs/screenshots/planner.png" alt="Daily planner screenshot">
+                        <h3>Daily Planner</h3>
+                        <p>Shows weighted scores, recommendation reasons, recall percentages, and Pomodoro counts.</p>
+                    </article>
+                    <article class="shot-card">
+                        <img class="shot-image" src="docs/screenshots/session-logger.png" alt="Session logger screenshot">
+                        <h3>Session Logger</h3>
+                        <p>Captures actual minutes, status, focus quality, confidence, quiz score, and review quality.</p>
+                    </article>
+                    <article class="shot-card">
+                        <img class="shot-image" src="docs/screenshots/analytics.png" alt="Analytics screenshot">
+                        <h3>Analytics</h3>
+                        <p>Highlights weekly consistency, Pomodoros completed, subject-wise minutes, and topic metrics.</p>
+                    </article>
+                    <article class="shot-card">
+                        <img class="shot-image" src="docs/screenshots/topic-details.png" alt="Topic details screenshot">
+                        <h3>Topic Details</h3>
+                        <p>Drills into confidence trend, recent sessions, review history, recall probability, and next review date.</p>
                     </article>
                 </div>
             </section>
@@ -157,54 +205,28 @@
                 </div>
             </section>
 
-            <section class="section-block showcase-block" id="showcase">
+            <section class="section-block distribution-block" id="distribution">
                 <div class="section-heading">
-                    <p class="eyebrow">Showcase</p>
-                    <h2>Use this section for screenshots before posting on LinkedIn</h2>
+                    <p class="eyebrow">Distribution</p>
+                    <h2>Public sharing, packaging, and Vercel fit</h2>
                 </div>
-                <div class="showcase-grid">
-                    <article class="shot-card">
-                        <div class="shot-surface">
-                            <span>Dashboard screenshot</span>
-                        </div>
-                        <h3>Dashboard</h3>
-                        <p>Highlight overdue reviews, today’s planned vs logged time, streaks, and risk tables.</p>
-                    </article>
-                    <article class="shot-card">
-                        <div class="shot-surface">
-                            <span>Planner screenshot</span>
-                        </div>
-                        <h3>Daily Planner</h3>
-                        <p>Show recommendation reasons, recall percentages, and the ordered Pomodoro queue.</p>
-                    </article>
-                    <article class="shot-card">
-                        <div class="shot-surface">
-                            <span>Analytics screenshot</span>
-                        </div>
-                        <h3>Analytics</h3>
-                        <p>Show weekly consistency, subject breakdown, and topic-level retention metrics.</p>
-                    </article>
-                </div>
-            </section>
-
-            <section class="section-block">
-                <div class="section-heading">
-                    <p class="eyebrow">Deployment reality</p>
-                    <h2>How Vercel fits this project</h2>
-                </div>
-                <div class="deployment-grid">
+                <div class="distribution-grid">
                     <article class="note-card">
-                        <h3>What Vercel hosts well</h3>
-                        <p>This repository now includes a static project site you can deploy directly on Vercel for LinkedIn, portfolio traffic, and recruiter sharing.</p>
+                        <h3>What goes on Vercel</h3>
+                        <p>The repository root contains a static portfolio site. Deploying this root directory on Vercel gives you the live URL to use on LinkedIn and your resume.</p>
                     </article>
                     <article class="note-card caution">
-                        <h3>What Vercel does not host here</h3>
-                        <p>The JavaFX desktop application itself is not a native Vercel runtime target, so the recommended setup is: host the showcase on Vercel and run or distribute the desktop app separately.</p>
+                        <h3>What stays desktop-only</h3>
+                        <p>The JavaFX application is distributed separately as a packaged Windows app image or GitHub release asset, not as a Vercel runtime.</p>
+                    </article>
+                    <article class="note-card">
+                        <h3>How to package it</h3>
+                        <p>Run <code>scripts/package-windows.ps1</code> to build a Windows app image and zip archive using <code>jpackage</code>.</p>
                     </article>
                 </div>
             </section>
 
-            <section class="section-block run-block" id="run">
+            <section class="section-block run-block">
                 <div class="section-heading">
                     <p class="eyebrow">Run locally</p>
                     <h2>Desktop app commands</h2>
@@ -215,25 +237,24 @@
                         <code>mvnw.cmd javafx:run</code>
                     </article>
                     <article class="command-card">
-                        <p class="command-label">Run the automated tests</p>
-                        <code>mvnw.cmd test</code>
+                        <p class="command-label">Refresh showcase screenshots</p>
+                        <code>powershell -ExecutionPolicy Bypass -File scripts/export-screenshots.ps1</code>
                     </article>
                     <article class="command-card">
-                        <p class="command-label">Build the project</p>
-                        <code>mvnw.cmd -DskipTests package</code>
+                        <p class="command-label">Build the Windows package</p>
+                        <code>powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1</code>
                     </article>
                 </div>
                 <p class="run-note">
-                    On macOS or Linux, replace <code>mvnw.cmd</code> with <code>./mvnw</code>.
-                    The desktop database is stored in the user profile by default and can be overridden with
-                    <code>STUDYPLANNER_DB_PATH</code> or <code>-Dstudyplanner.db.path=...</code>.
+                    On macOS or Linux, use the Maven Wrapper directly for development. The Windows packaging script requires
+                    <code>jpackage</code> from JDK 17 and produces a zipped app image under <code>dist/</code>.
                 </p>
             </section>
         </main>
 
         <footer class="footer">
             <p>Adaptive Study Planner & Performance Tracker</p>
-            <p>A solo-developer desktop systems project with a Vercel-ready public showcase.</p>
+            <p>JavaFX desktop product, GitHub-hosted source, Vercel-ready public showcase.</p>
         </footer>
     </div>
 </body>

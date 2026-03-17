@@ -62,9 +62,32 @@ public class ManagementPane extends ScrollPane implements RefreshableView {
 
     @Override
     public void refresh() {
+        long selectedSubjectId = subjectTable.getSelectionModel().getSelectedItem() == null
+            ? -1
+            : subjectTable.getSelectionModel().getSelectedItem().getId();
+        long selectedTopicId = topicTable.getSelectionModel().getSelectedItem() == null
+            ? -1
+            : topicTable.getSelectionModel().getSelectedItem().topicId();
+
         subjectTable.setItems(FXCollections.observableArrayList(context.getSubjectService().getAllSubjects()));
         topicSubjectCombo.setItems(FXCollections.observableArrayList(context.getSubjectService().getAllSubjects()));
         topicTable.setItems(FXCollections.observableArrayList(context.getTopicService().getTopicOverviews()));
+
+        if (!subjectTable.getItems().isEmpty()) {
+            Subject subject = subjectTable.getItems().stream()
+                .filter(item -> item.getId() == selectedSubjectId)
+                .findFirst()
+                .orElse(subjectTable.getItems().get(0));
+            subjectTable.getSelectionModel().select(subject);
+        }
+
+        if (!topicTable.getItems().isEmpty()) {
+            TopicOverview topic = topicTable.getItems().stream()
+                .filter(item -> item.topicId() == selectedTopicId)
+                .findFirst()
+                .orElse(topicTable.getItems().get(0));
+            topicTable.getSelectionModel().select(topic);
+        }
     }
 
     private SplitPane buildContent() {

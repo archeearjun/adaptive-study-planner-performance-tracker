@@ -184,6 +184,19 @@ public class DatabaseManager {
         return databasePath;
     }
 
+    public String getDatabaseLocationLabel() {
+        String override = System.getProperty("studyplanner.db.path");
+        if (override == null || override.isBlank()) {
+            override = System.getenv("STUDYPLANNER_DB_PATH");
+        }
+
+        if (override != null && !override.isBlank()) {
+            return "Custom path (" + databasePath.getFileName() + ")";
+        }
+
+        return "%USERPROFILE%/.adaptive-study-planner/" + databasePath.getFileName();
+    }
+
     private static Path resolveDefaultDatabasePath() {
         String override = System.getProperty("studyplanner.db.path");
         if (override == null || override.isBlank()) {

@@ -26,12 +26,16 @@ Tech stack:
 
 `Java 17` `JavaFX` `SQLite` `Maven` `JUnit`
 
-I also created a Vercel-hosted project showcase so the public-facing project page is easy to share, while the main app remains a desktop product.
+Public links:
+
+- Live showcase: add the Vercel production URL after deployment
+- GitHub: https://github.com/archeearjun/adaptive-study-planner-performance-tracker
+- Download: https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases
 
 Next improvements I want to make:
 
-- native installer packaging
+- signed native installer packaging
 - richer charts and export options
-- downloadable release builds
+- broader multi-platform packaging
 
 #java #javadeveloper #softwareengineering #desktopapp #machinelearning #portfolio #studentproject

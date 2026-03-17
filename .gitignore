@@ -2,6 +2,8 @@ target/
 build-check/
 .tools/
 data/
+.dist/
+dist/
 .vercel/
 *.log
 javafx-run.out

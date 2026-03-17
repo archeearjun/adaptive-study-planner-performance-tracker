@@ -33,6 +33,7 @@ The result is a resume-ready solo project that feels like a real 2024 productivi
 - Dashboard and analytics views for streaks, overdue reviews, completion rate, Pomodoros, and topic-level retention
 - Seeded demo data with 3 subjects, 12 topics, historical sessions, review records, and model training rows
 - Vercel-hostable static portfolio site at the repository root for public sharing
+- Repeatable scripts for screenshot export and Windows desktop packaging
 
 ## Product Flow
 
@@ -220,6 +221,29 @@ macOS / Linux:
 ./mvnw test
 ```
 
+### Refresh Screenshots
+
+Windows:
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts/export-screenshots.ps1
+```
+
+This generates fresh portfolio screenshots in `docs/screenshots/` using a temporary seeded SQLite database.
+
+### Package The Windows App
+
+Windows:
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts/package-windows.ps1
+```
+
+This produces:
+
+- `dist/AdaptiveStudyPlanner/` app image
+- `dist/AdaptiveStudyPlanner-windows-x64.zip` downloadable archive
+
 ## Vercel Showcase
 
 This repository now includes a static portfolio page at the repo root:
@@ -232,28 +256,31 @@ Recommended public setup:
 
 1. Deploy the static site on Vercel for LinkedIn, recruiter sharing, and portfolio traffic.
 2. Keep the JavaFX app as the downloadable or locally runnable product.
-3. Add real screenshots under `docs/screenshots/` before sharing publicly.
+3. Publish the packaged Windows zip on GitHub Releases.
 
-Important note:
+Deployment status:
 
+- The repository is Vercel-ready.
+- A live Vercel URL still requires an authenticated Vercel account or token at deploy time.
 - The JavaFX desktop application itself is not the part you deploy to Vercel.
-- Vercel is used here as the public-facing showcase layer, not the Java runtime host.
+
+See `docs/vercel-deployment.md` for the exact deployment flow.
+
+## Public Links
+
+- GitHub repository: `https://github.com/archeearjun/adaptive-study-planner-performance-tracker`
+- GitHub releases: `https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases`
+- Resume snippet: `docs/resume-entry.md`
+- LinkedIn copy: `docs/linkedin-post-template.md`
 
 ## Screenshots
 
-Add screenshots here after running the app locally:
-
-- `docs/screenshots/dashboard.png`
-- `docs/screenshots/planner.png`
-- `docs/screenshots/analytics.png`
-
-Placeholder markdown:
-
-```md
 ![Dashboard](docs/screenshots/dashboard.png)
+![Subjects And Topics](docs/screenshots/management.png)
 ![Daily Planner](docs/screenshots/planner.png)
+![Session Logger](docs/screenshots/session-logger.png)
 ![Analytics](docs/screenshots/analytics.png)
-```
+![Topic Details](docs/screenshots/topic-details.png)
 
 ## Resume-Ready Highlights
 
@@ -271,7 +298,7 @@ Placeholder markdown:
 ## Future Improvements
 
 - export analytics and plans to CSV or PDF
-- package native desktop installers with `jpackage`
+- add a signed native installer in addition to the zipped app image
 - add dark theme and richer chart interactivity
 - support multiple user profiles
 - tune scheduling weights from observed completion outcomes

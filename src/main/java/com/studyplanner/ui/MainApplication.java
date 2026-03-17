@@ -5,6 +5,9 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class MainApplication extends Application {
     @Override
     public void start(Stage stage) {
@@ -18,6 +21,14 @@ public class MainApplication extends Application {
         stage.setMinHeight(820);
         stage.setScene(scene);
         stage.show();
+
+        if (Boolean.getBoolean("studyplanner.exportScreenshots")) {
+            Path outputDir = Paths.get(System.getProperty(
+                "studyplanner.screenshots.dir",
+                "docs/screenshots"
+            ));
+            ScreenshotExporter.export(stage, root, outputDir);
+        }
     }
 
     public static void main(String[] args) {
