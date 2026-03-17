@@ -11,7 +11,7 @@ Most study planners stop at static to-do lists. This project treats planning as 
 - retention risk influences revision timing
 - analytics make consistency and neglect visible
 
-The result is a resume-ready solo project that feels like a real 2024 productivity tool instead of a classroom CRUD demo.
+The application combines planning, review scheduling, execution tracking, and retention prediction in a single desktop workflow.
 
 ## Stack
 
@@ -32,7 +32,7 @@ The result is a resume-ready solo project that feels like a real 2024 productivi
 - Logistic regression retention predictor trained from local study history
 - Dashboard and analytics views for streaks, overdue reviews, completion rate, Pomodoros, and topic-level retention
 - Seeded demo data with 3 subjects, 12 topics, historical sessions, review records, and model training rows
-- Vercel-hostable static portfolio site at the repository root for public sharing
+- Vercel-hosted static project site at the repository root
 - Repeatable scripts for screenshot export and Windows desktop packaging
 
 ## Product Flow
@@ -229,7 +229,7 @@ Windows:
 powershell -ExecutionPolicy Bypass -File scripts/export-screenshots.ps1
 ```
 
-This generates fresh portfolio screenshots in `docs/screenshots/` using a temporary seeded SQLite database.
+This generates fresh screenshots in `docs/screenshots/` using a temporary seeded SQLite database.
 
 ### Package The Windows App
 
@@ -244,9 +244,9 @@ This produces:
 - `dist/AdaptiveStudyPlanner/` app image
 - `dist/AdaptiveStudyPlanner-windows-x64.zip` downloadable archive
 
-## Vercel Showcase
+## Vercel Project Site
 
-This repository now includes a static portfolio page at the repo root:
+This repository now includes a static project site at the repo root:
 
 - `index.html`
 - `site.css`
@@ -254,7 +254,7 @@ This repository now includes a static portfolio page at the repo root:
 
 Recommended public setup:
 
-1. Deploy the static site on Vercel for LinkedIn, recruiter sharing, and portfolio traffic.
+1. Deploy the static site on Vercel to publish the product overview, screenshots, and links.
 2. Keep the JavaFX app as the downloadable or locally runnable product.
 3. Publish the packaged Windows zip on GitHub Releases.
 
@@ -268,11 +268,11 @@ See `docs/vercel-deployment.md` for the exact deployment flow.
 
 ## Public Links
 
-- Live showcase: `https://adaptive-study-planner-performance.vercel.app/`
+- Live site: `https://adaptive-study-planner-performance.vercel.app/`
 - GitHub repository: `https://github.com/archeearjun/adaptive-study-planner-performance-tracker`
 - GitHub release page: `https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/tag/v1.0.0`
 - Direct Windows download: `https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/download/v1.0.0/AdaptiveStudyPlanner-windows-x64.zip`
-- Resume snippet: `docs/resume-entry.md`
+- Resume entry: `docs/resume-entry.md`
 - LinkedIn copy: `docs/linkedin-post-template.md`
 
 ## Screenshots
@@ -284,7 +284,7 @@ See `docs/vercel-deployment.md` for the exact deployment flow.
 ![Analytics](docs/screenshots/analytics.png)
 ![Topic Details](docs/screenshots/topic-details.png)
 
-## Resume-Ready Highlights
+## Highlights
 
 - Built a Java-based study planning engine combining SM-2 spaced repetition, priority-weighted scheduling, and Pomodoro-based focus sessions
 - Integrated a logistic regression retention model to predict recall likelihood and dynamically adjust revision timing

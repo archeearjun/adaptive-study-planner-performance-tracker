@@ -3,9 +3,9 @@
 This repository contains two deliverables:
 
 1. A JavaFX desktop application
-2. A static portfolio site at the repository root
+2. A static project site at the repository root
 
-Only the static portfolio site is intended for Vercel deployment.
+Only the static project site is intended for Vercel deployment.
 
 ## What Gets Deployed
 

@@ -1,6 +1,6 @@
 # LinkedIn Post Template
 
-Built a new portfolio project: **Adaptive Study Planner & Performance Tracker**
+Built **Adaptive Study Planner & Performance Tracker**
 
 It is a Java 17 desktop application that combines:
 
@@ -10,9 +10,9 @@ It is a Java 17 desktop application that combines:
 - performance analytics
 - a custom logistic regression model for recall prediction
 
-What I wanted to build:
+What it does:
 
-I did not want another static task manager. I wanted a planner that reacts to study behavior, updates revision timing, and explains why a topic is scheduled.
+It generates adaptive daily study plans, updates revision timing from logged performance, and explains why a topic is scheduled.
 
 What makes it technically interesting:
 
@@ -28,7 +28,7 @@ Tech stack:
 
 Public links:
 
-- Live showcase: https://adaptive-study-planner-performance.vercel.app/
+- Live: https://adaptive-study-planner-performance.vercel.app/
 - GitHub: https://github.com/archeearjun/adaptive-study-planner-performance-tracker
 - Download: https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/tag/v1.0.0
 
@@ -38,4 +38,4 @@ Next improvements I want to make:
 - richer charts and export options
 - broader multi-platform packaging
 
-#java #javadeveloper #softwareengineering #desktopapp #machinelearning #portfolio #studentproject
+#java #javadeveloper #softwareengineering #desktopapp #machinelearning

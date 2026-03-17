@@ -60,7 +60,7 @@ public class MainView extends BorderPane {
         VBox copy = new VBox(8, title, subtitle, databasePath);
         HBox.setHgrow(copy, Priority.ALWAYS);
 
-        Label badge = new Label("Portfolio Build");
+        Label badge = new Label("Desktop App");
         badge.getStyleClass().add("hero-badge");
 
         Region spacer = new Region();
