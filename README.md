@@ -275,6 +275,13 @@ See `docs/vercel-deployment.md` for the exact deployment flow.
 - Resume entry: `docs/resume-entry.md`
 - LinkedIn copy: `docs/linkedin-post-template.md`
 
+## Developer
+
+- LinkedIn: `https://www.linkedin.com/in/archeearjun`
+- GitHub profile: `https://github.com/archeearjun/`
+- Email: `archeearjunwork@gmail.com`
+- Phone: `+91 88394 79877`
+
 ## Screenshots
 
 ![Dashboard](docs/screenshots/dashboard.png)

@@ -16,10 +16,13 @@
                     <span>Adaptive Study Planner</span>
                 </div>
                 <div class="nav-links">
+                    <a href="#about">About</a>
                     <a href="#product">Product</a>
+                    <a href="#guide">Guide</a>
                     <a href="#showcase">Screens</a>
                     <a href="#architecture">Architecture</a>
-                    <a href="#distribution">Distribution</a>
+                    <a href="#blogs">Blogs</a>
+                    <a href="#connect">Connect</a>
                 </div>
             </nav>
 
@@ -34,16 +37,16 @@
                     </p>
                     <div class="cta-row">
                         <a class="button primary" href="https://adaptive-study-planner-performance.vercel.app/" target="_blank" rel="noreferrer">Open Live Site</a>
-                        <a class="button secondary" href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker" target="_blank" rel="noreferrer">View Source</a>
+                        <a class="button secondary" href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker" target="_blank" rel="noreferrer">Project Repository</a>
                         <a class="button secondary" href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/download/v1.0.0/AdaptiveStudyPlanner-windows-x64.zip" target="_blank" rel="noreferrer">Download Windows Build</a>
-                        <a class="button secondary" href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker#readme" target="_blank" rel="noreferrer">Read README</a>
+                        <a class="button secondary" href="#connect">Contact</a>
                     </div>
                     <div class="resume-panel">
                         <p>Project summary</p>
                         <ul>
-                            <li>Built a Java-based planning engine that adapts to deadlines, forgetting risk, and available time.</li>
-                            <li>Integrated logistic regression recall prediction directly into scheduling decisions.</li>
-                            <li>Tracked study consistency, revision quality, Pomodoros, and topic-level retention trends.</li>
+                            <li>Builds adaptive daily study plans from urgency, priority, difficulty, recall probability, and available time.</li>
+                            <li>Combines SM-2 review scheduling, Pomodoro blocks, performance logging, and logistic regression-based retention prediction.</li>
+                            <li>Ships as a JavaFX desktop application with SQLite persistence, demo data, screenshots, and downloadable releases.</li>
                         </ul>
                     </div>
                 </div>
@@ -61,20 +64,20 @@
                         </div>
                     </section>
                     <section class="signal-card spotlight">
-                        <p class="signal-label">Why this is credible</p>
+                        <p class="signal-label">What stands out</p>
                         <ul>
                             <li>The planner explains why each topic was scheduled.</li>
-                            <li>Session logs change future plans instead of just storing history.</li>
+                            <li>Session logs change future plans instead of only storing history.</li>
                             <li>The project includes persistence, seeded data, packaging scripts, screenshots, and tests.</li>
                         </ul>
                     </section>
                     <section class="signal-card">
-                        <p class="signal-label">Project links</p>
+                        <p class="signal-label">Developer links</p>
                         <div class="link-stack">
-                            <a href="https://adaptive-study-planner-performance.vercel.app/" target="_blank" rel="noreferrer">Live site</a>
-                            <a href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker" target="_blank" rel="noreferrer">GitHub repository</a>
-                            <a href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/tag/v1.0.0" target="_blank" rel="noreferrer">Release page</a>
-                            <span>The live site presents the product, while the release page provides the packaged desktop build.</span>
+                            <a href="https://www.linkedin.com/in/archeearjun" target="_blank" rel="noreferrer">LinkedIn</a>
+                            <a href="https://github.com/archeearjun/" target="_blank" rel="noreferrer">GitHub Profile</a>
+                            <a href="mailto:archeearjunwork@gmail.com">archeearjunwork@gmail.com</a>
+                            <a href="tel:+918839479877">+91 88394 79877</a>
                         </div>
                     </section>
                 </aside>
@@ -82,6 +85,44 @@
         </header>
 
         <main>
+            <section class="section-block about-block" id="about">
+                <div class="section-heading">
+                    <p class="eyebrow">About</p>
+                    <h2>What the application covers and who maintains it</h2>
+                </div>
+                <div class="about-grid">
+                    <article class="note-card">
+                        <h3>Product scope</h3>
+                        <p>
+                            The application is designed for students who need a planning system that reacts to real study behavior.
+                            It tracks topics, review history, confidence, deadlines, and execution quality, then uses that data to
+                            adjust the next plan instead of treating each day as a blank slate.
+                        </p>
+                    </article>
+                    <article class="note-card">
+                        <h3>Planning model</h3>
+                        <p>
+                            A weighted scheduler ranks topics from urgency, importance, difficulty, backlog pressure, and forgetting risk.
+                            Forgetting risk is influenced by a logistic regression retention predictor, while due reviews are updated with
+                            SM-2 logic after each logged session.
+                        </p>
+                    </article>
+                    <article class="note-card profile-card">
+                        <h3>Maintained by Archee Arjun</h3>
+                        <p>
+                            Software engineering, desktop application development, and systems-oriented product work.
+                            Use the links below for project updates, source code, and direct contact.
+                        </p>
+                        <div class="profile-links">
+                            <a href="https://www.linkedin.com/in/archeearjun" target="_blank" rel="noreferrer">linkedin.com/in/archeearjun</a>
+                            <a href="https://github.com/archeearjun/" target="_blank" rel="noreferrer">github.com/archeearjun</a>
+                            <a href="mailto:archeearjunwork@gmail.com">archeearjunwork@gmail.com</a>
+                            <a href="tel:+918839479877">+91 88394 79877</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
             <section class="metrics-strip" id="product">
                 <article>
                     <span class="metric">6</span>
@@ -89,7 +130,7 @@
                 </article>
                 <article>
                     <span class="metric">12</span>
-                    <p>seeded topics with historical sessions and review records for a demo-ready first launch</p>
+                    <p>seeded topics with historical sessions and review records for a demonstrable first launch</p>
                 </article>
                 <article>
                     <span class="metric">5</span>
@@ -130,6 +171,46 @@
                     <article class="feature-card">
                         <h3>Replanning After Progress</h3>
                         <p>Logged work changes the same-day queue so completed topics are removed or shortened instead of being blindly repeated.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block guide-block" id="guide">
+                <div class="section-heading">
+                    <p class="eyebrow">Guide</p>
+                    <h2>How to explore the project in a few minutes</h2>
+                </div>
+                <div class="guide-grid">
+                    <article class="guide-card">
+                        <span class="guide-step">01</span>
+                        <h3>Open the desktop app</h3>
+                        <p>Launch the JavaFX app with Maven or download the packaged Windows build from the release page.</p>
+                        <code>mvnw.cmd javafx:run</code>
+                    </article>
+                    <article class="guide-card">
+                        <span class="guide-step">02</span>
+                        <h3>Inspect seeded data</h3>
+                        <p>Use the demo subjects and topics to see deadlines, confidence, review dates, and historical sessions without manual setup.</p>
+                    </article>
+                    <article class="guide-card">
+                        <span class="guide-step">03</span>
+                        <h3>Generate a plan</h3>
+                        <p>Create a day plan from available study time, then inspect recommendation reasons, recall percentages, and Pomodoro counts.</p>
+                    </article>
+                    <article class="guide-card">
+                        <span class="guide-step">04</span>
+                        <h3>Log a session</h3>
+                        <p>Record completion status, actual minutes, focus quality, confidence, quiz score, and review quality to update future scheduling.</p>
+                    </article>
+                    <article class="guide-card">
+                        <span class="guide-step">05</span>
+                        <h3>Review the analytics</h3>
+                        <p>Check streaks, overdue reviews, subject-wise minutes, and topic-level trends to see how planning and retention interact.</p>
+                    </article>
+                    <article class="guide-card">
+                        <span class="guide-step">06</span>
+                        <h3>Use the public assets</h3>
+                        <p>The live site, repository, and release page together provide overview, implementation detail, and a runnable download.</p>
                     </article>
                 </div>
             </section>
@@ -207,10 +288,43 @@
                 </div>
             </section>
 
-            <section class="section-block distribution-block" id="distribution">
+            <section class="section-block blogs-block" id="blogs">
+                <div class="section-heading">
+                    <p class="eyebrow">Blogs</p>
+                    <h2>Engineering notes behind the project</h2>
+                </div>
+                <div class="blog-grid">
+                    <article class="blog-card">
+                        <p class="blog-meta">Planning engine</p>
+                        <h3>Designing a weighted scheduler that stays explainable</h3>
+                        <p>
+                            The scheduler balances urgency, importance, difficulty, backlog, and recall risk without turning into a black box.
+                            Each plan item carries a human-readable reason so the recommendation layer stays inspectable in the UI.
+                        </p>
+                    </article>
+                    <article class="blog-card">
+                        <p class="blog-meta">Retention model</p>
+                        <h3>Using logistic regression to influence review timing</h3>
+                        <p>
+                            The retention predictor uses days since revision, difficulty, confidence, review quality, repetition count,
+                            completion consistency, and session quality to estimate recall probability. That output directly changes revision priority.
+                        </p>
+                    </article>
+                    <article class="blog-card">
+                        <p class="blog-meta">Product delivery</p>
+                        <h3>Packaging a desktop app with a public web layer</h3>
+                        <p>
+                            The project uses a Vercel-hosted site for overview, screenshots, and downloads, while the JavaFX application is packaged
+                            separately for desktop use. That keeps the product easy to browse publicly and easy to run locally.
+                        </p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-block distribution-block">
                 <div class="section-heading">
                     <p class="eyebrow">Distribution</p>
-                    <h2>Public sharing, packaging, and Vercel fit</h2>
+                    <h2>Public sharing, packaging, and deployment</h2>
                 </div>
                 <div class="distribution-grid">
                     <article class="note-card">
@@ -232,6 +346,31 @@
                 </div>
             </section>
 
+            <section class="section-block connect-block" id="connect">
+                <div class="section-heading">
+                    <p class="eyebrow">Connect</p>
+                    <h2>Project links and contact details</h2>
+                </div>
+                <div class="connect-grid">
+                    <article class="connect-card">
+                        <p class="signal-label">Project</p>
+                        <a href="https://adaptive-study-planner-performance.vercel.app/" target="_blank" rel="noreferrer">Live site</a>
+                        <a href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker" target="_blank" rel="noreferrer">Repository</a>
+                        <a href="https://github.com/archeearjun/adaptive-study-planner-performance-tracker/releases/tag/v1.0.0" target="_blank" rel="noreferrer">Release page</a>
+                    </article>
+                    <article class="connect-card">
+                        <p class="signal-label">Profiles</p>
+                        <a href="https://www.linkedin.com/in/archeearjun" target="_blank" rel="noreferrer">LinkedIn</a>
+                        <a href="https://github.com/archeearjun/" target="_blank" rel="noreferrer">GitHub Profile</a>
+                    </article>
+                    <article class="connect-card">
+                        <p class="signal-label">Direct contact</p>
+                        <a href="mailto:archeearjunwork@gmail.com">archeearjunwork@gmail.com</a>
+                        <a href="tel:+918839479877">+91 88394 79877</a>
+                    </article>
+                </div>
+            </section>
+
             <section class="section-block run-block">
                 <div class="section-heading">
                     <p class="eyebrow">Run locally</p>
@@ -243,7 +382,7 @@
                         <code>mvnw.cmd javafx:run</code>
                     </article>
                     <article class="command-card">
-                        <p class="command-label">Refresh showcase screenshots</p>
+                        <p class="command-label">Refresh screenshots</p>
                         <code>powershell -ExecutionPolicy Bypass -File scripts/export-screenshots.ps1</code>
                     </article>
                     <article class="command-card">
@@ -263,8 +402,16 @@
         </main>
 
         <footer class="footer">
-            <p>Adaptive Study Planner & Performance Tracker</p>
-            <p>JavaFX desktop product, GitHub-hosted source, and a Vercel-hosted public site.</p>
+            <div>
+                <p>Adaptive Study Planner & Performance Tracker</p>
+                <p>JavaFX desktop product, GitHub-hosted source, and a Vercel-hosted public site.</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://www.linkedin.com/in/archeearjun" target="_blank" rel="noreferrer">LinkedIn</a>
+                <a href="https://github.com/archeearjun/" target="_blank" rel="noreferrer">GitHub</a>
+                <a href="mailto:archeearjunwork@gmail.com">Email</a>
+                <a href="tel:+918839479877">Call</a>
+            </div>
         </footer>
     </div>
 </body>
